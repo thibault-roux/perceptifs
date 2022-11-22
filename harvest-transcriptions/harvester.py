@@ -75,21 +75,13 @@ def retrieve_transcriptions(namesys1, namesys2, diff, limit, min_length=-1, max_
                     # CONTINUER FROM HERE
                     break_value = False
                     for d in diff: # check difference between two metrics
-                        d = d.split(",")
                         metric = d[0]
-                        bin_op = d[1]
-                        dscore = float(d[2]) # difference between the score of sys1 and sys2
-                        if bin_op == "<":
-                            if abs(sys1[id][metric] - sys2[id][metric]) > dscore: # if the difference is NOT inferior to dscore
-                                break_value = True
-                                break
-                        elif bin_op == ">":
-                            if abs(sys1[id][metric] - sys2[id][metric]) < dscore: # if the difference is NOT superior to dscore
-                                break_value = True
-                                break
-                        else:
-                            print("Error with bin_op =", bin_op)
-                            exit(-1)
+                        minsco = d[1] # minimum difference between the score of sys1 and sys2 
+                        maxsco = d[2] # maximum difference between the score of sys1 and sys2
+                        difference = abs(sys1[id][metric] - sys2[id][metric])
+                        if difference < minsco or difference > maxsco:
+                            break_value = True
+                            break
 
                     #for l in limit: # check the minimum and maximum value for each metric
 
@@ -102,7 +94,7 @@ def retrieve_transcriptions(namesys1, namesys2, diff, limit, min_length=-1, max_
                         
 
 
-retrieve_transcriptions(args.sys1, args.sys2, diff=["wer,<,10", ], limit=["wer,0,50"], min_length=1, max_length=5) #, diff=["wer,<,30", "semdist,<,0", "cer,>,10"]
+retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",10,50]], limit=[["wer",0,50]], min_length=1, max_length=5) #, diff=["wer,<,30", "semdist,<,0", "cer,>,10"]
 
 
 
