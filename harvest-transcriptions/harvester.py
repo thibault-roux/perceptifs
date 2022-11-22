@@ -35,35 +35,33 @@ def get_score(metric, id): # return a dictionary -> dico[id] = [score, ref, hyp]
 # NB: Scores in correlation correspond to real score computed from data. (One exception catch on 5437 for WER)
 
 
-wer_kd_woR = get_score("wer", "KD_woR")
-wer_kd_wR  = get_score("wer", "KD_wR")
+sys1 = get_score(args.metric, args.sys1)
+sys2 = get_score(args.metric, args.sys2)
 
-# def check_data():
-
-
-incoherence = 0
-coherence = 0
-wers = []
-for k, v in wer_kd_woR.items():
-    """if v[0] != 100*wer([v[1]], v[2]): # le WER entre la référence et l'hypothèse correspond à celui enregistré
-        print(k, 100*wer([v[1]], v[2]), v)"""
-    if wer_kd_wR[k][1] != v[1]: # si les ref sont identiques pour les deux dictionnaires
-        print(k)
-        print(wer_kd_wR[k][1])
-        print(v[1])
-        print()
-        incoherence += 1
-        wers.append(100*wer([v[1]], [wer_kd_wR[k][1]]))
-    else:
-        coherence += 1
-print("Il y a " + str(incoherence) + " incohérence(s) entre les deux fichiers")
-print("Il y a " + str(coherence) + " cohérence(s) entre les deux fichiers")
-print("WER  moyen: ", sum(wers)/len(wers))
-input("Affichage des wers...")
-print(wers)
+def check_data(sys1, sys2):
+    incoherence = 0
+    coherence = 0
+    wers = []
+    for k, v in sys1.items():
+        """if v[0] != 100*wer([v[1]], v[2]): # le WER entre la référence et l'hypothèse correspond à celui enregistré
+            print(k, 100*wer([v[1]], v[2]), v)"""
+        if sys2[k][1] != v[1]: # si les ref sont identiques pour les deux dictionnaires
+            print(k)
+            print(sys2[k][1])
+            print(v[1])
+            print()
+            incoherence += 1
+            wers.append(100*wer([v[1]], [sys2[k][1]]))
+        else:
+            coherence += 1
+    print("Il y a " + str(incoherence) + " incohérence(s) entre les deux fichiers")
+    print("Il y a " + str(coherence) + " cohérence(s) entre les deux fichiers")
+    print("WER  moyen: ", sum(wers)/len(wers))
+    input("Affichage des wers...\n")
+    print(wers)
 
 # Step 1 : vérifier que les transcriptions sont alignées (transcription 1 de KD_woR == transcription 1 de KD_wR)
 #   -> 821 incohérences pour 4617 cohérences. Supprimons les incohérences ?
 # Step 2 : calculer le WER des transcriptions (DONE, c'est ok)
 
-# GENERALISER LE CODE POUR DEUX METRICS RANDOM ET DEUX SYSTEMES RANDOM
+check_data(sys1, sys2)
