@@ -36,15 +36,12 @@ def get_score(sys): # return a dictionary -> dico[id] = [ref, hyp, wer, cer, emb
             for ligne in file:
                 ligne = ligne[:-1].split("\t")
                 id = ligne[0]
-                score = str(float(ligne[1]))
+                score = float(ligne[1])
                 dico[id][metric] = score
 
     return dico # dico[id] = [ref, hyp, wer, cer, ember, semdist] # dict of dict
 # NB: Scores in correlation correspond to real score computed from data. (One exception catch on 5437 for WER)
 
-
-#sys1 = get_score(args.sys1)
-#sys2 = get_score(args.sys2)
 
 
 def abs(value): # valeur absolue
@@ -53,7 +50,8 @@ def abs(value): # valeur absolue
     else:
         return value
 
-def retrieve_transcriptions(sys1, sys2, difference):
+
+def retrieve_transcriptions(namesys1, namesys2, diff, limit, min_length=-1, max_length=9999):
     # ====================================
     # conditions optionnelles : 
     # - [one/many] difference relative à une métrique : élevé, faible, nul (identique), peut-être une valeur numérique (exemple: diff(WER) < 10, diff(SemDist) > 20)
@@ -65,33 +63,56 @@ def retrieve_transcriptions(sys1, sys2, difference):
     # - références identiques
     # - hypothèses différentes
 
-    for k, v in sys1.items():
-        if sys2[k][1] == v[1]: # si les ref sont identiques pour les deux dictionnaires
-            if sys2[k][2] != v[2]: # si les hypothèses sont différentes
+    sys1 = get_score(namesys1)
+    sys2 = get_score(namesys2)
 
-                if sys2[k][0] == v[0]: # le score est le même  # if abs(sys2[k][0] - v[0]) < difference
-                    if len(k.split(" ")) < 15: # longueur maximale de la référence
-                        print(v[0])
-                        print(v[2])
-                        print(sys2[k][2])
-                        print(abs(sys2[k][0] - v[0]))
+    for id, _ in sys1.items():
+        if sys1[id]["ref"] == sys2[id]["ref"]: # si les ref sont identiques pour les deux dictionnaires
+            if sys1[id]["hyp"] != sys2[id]["hyp"]: # si les hypothèses sont différentes
+
+                length = len(sys1[id]["ref"].split(" "))
+                if length >= min_length and length <= max_length: # check the length of the reference
+                    # CONTINUER FROM HERE
+                    break_value = False
+                    for d in diff: # check difference between two metrics
+                        d = d.split(",")
+                        metric = d[0]
+                        bin_op = d[1]
+                        dscore = float(d[2]) # difference between the score of sys1 and sys2
+                        if bin_op == "<":
+                            if abs(sys1[id][metric] - sys2[id][metric]) > dscore: # if the difference is NOT inferior to dscore
+                                break_value = True
+                                break
+                        elif bin_op == ">":
+                            if abs(sys1[id][metric] - sys2[id][metric]) < dscore: # if the difference is NOT superior to dscore
+                                break_value = True
+                                break
+                        else:
+                            print("Error with bin_op =", bin_op)
+                            exit(-1)
+
+                    #for l in limit: # check the minimum and maximum value for each metric
+
+                    if not break_value:
+                        #if sys1[id]["wer"] == sys2[id]["wer"]: # le score est le même  # if abs(sys2[k][0] - v[0]) < difference
+                        print(sys1[id])
+                        print(sys2[id])
+                        print("diff:", abs(sys1[id][metric] - sys2[id][metric]))
                         input()
                         
 
 
-retrieve_transcriptions(sys1, sys2) #, ["wer<30,semdist=0"])
+retrieve_transcriptions(args.sys1, args.sys2, diff=["wer,<,10", ], limit=["wer,0,50"], min_length=1, max_length=5) #, diff=["wer,<,30", "semdist,<,0", "cer,>,10"]
 
 
 
-# Faire un tableau contenant toutes les valeurs
-# parcourir
+
 
 
 
 
 
 # =========== TO DELETE =============
-
 
 def check_data(sys1, sys2):
     incoherence = 0
