@@ -136,12 +136,32 @@ def retrieve_transcriptions(namesys1, namesys2, diff=[], limit=[], inversed=(), 
                         
 
 # WER different (one low and the other high)
+print("\n\n-----\nWER very different:")
 retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",30,200]], min_length=3, max_length=20)
 
-#
+# WER close
+print("\n\n-----\nWER pretty close:")
+retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",1,15]], min_length=3, max_length=20)
+
+# WER identical
+print("\n\n-----\nWER identical:")
+retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",0,0]], min_length=3, max_length=20) # maybe I should limit the maximum wer to be below 100%
+
+# CER identical
+print("\n\n-----\nCER identical:")
+retrieve_transcriptions(args.sys1, args.sys2, diff=[["cer",0,0]], min_length=3, max_length=20) # maybe I should limit the maximum cer to be below 100%
+
+# WER identical but different semantical value
+print("\n\n-----\nWER identical but different semdist:")
+retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",0,0], ["semdist",2,999]], min_length=3, max_length=20)
+
+# WER indicate that one hypothesis is better but Semdist indicate the other as the best
+print("\n\n-----\nWER and Semdist are contradictory:")
+retrieve_transcriptions(args.sys1, args.sys2, limit=[["wer",5,90]], inversed=("wer", "semdist"), min_length=3, max_length=20)
+
 
 #retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",0,10], ["semdist",30,200]], limit=[["wer",-10,70]], min_length=3, max_length=10)
-retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",0,200], ["semdist",10,80]], limit=[["wer",5,90]], inversed=("wer", "semdist"), min_length=3, max_length=20)
+#retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",0,200], ["semdist",10,80]], limit=[["wer",5,90]], inversed=("wer", "semdist"), min_length=3, max_length=20)
 # inversed=["wer", "semdist"]   ==   [ wer(hyp1)>wer(hyp2) and semdist(hyp1)<semdist(hyp2) ] or [ wer(hyp1)<wer(hyp2) and semdist(hyp1)>semdist(hyp2)
 
 
