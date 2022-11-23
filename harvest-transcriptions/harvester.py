@@ -50,6 +50,20 @@ def abs(value): # valeur absolue
     else:
         return value
 
+def display(sysid, metrics):
+    print("ref :", sysid["ref"], end=" ; ")
+    print("hyp :", sysid["hyp"], end=" ; ")
+
+    for metric in metrics:
+        print(metric, ":", float(int(1000*sysid[metric])/1000), end=" ; ")
+    # print("cer :", float(int(1000*sysid["cer"])/1000), end=" ; ")
+    # print("ember :", float(int(1000*sysid["ember"])/1000), end=" ; ")
+    # print("semdist :", float(int(1000*sysid["semdist"])/1000), end=" ; ")
+    
+    
+    
+    print()
+
 
 def retrieve_transcriptions(namesys1, namesys2, diff, limit, min_length=-1, max_length=9999):
     # ====================================
@@ -67,12 +81,13 @@ def retrieve_transcriptions(namesys1, namesys2, diff, limit, min_length=-1, max_
     sys2 = get_score(namesys2)
 
     for id, _ in sys1.items():
-        if sys1[id]["ref"] == sys2[id]["ref"]: # si les ref sont identiques pour les deux dictionnaires
-            if sys1[id]["hyp"] != sys2[id]["hyp"]: # si les hypothèses sont différentes
+        if "(h)" in sys1[id]["ref"].split(" "): # remove reference containing disfluences
+            continue
+        if sys1[id]["ref"] == sys2[id]["ref"]: # if references are identical
+            if sys1[id]["hyp"] != sys2[id]["hyp"]: # if hypothesis are different
 
                 length = len(sys1[id]["ref"].split(" "))
                 if length >= min_length and length <= max_length: # check the length of the reference
-                    # CONTINUER FROM HERE
                     break_value = False
                     for d in diff: # check difference between two metrics
                         metric = d[0]
@@ -83,19 +98,25 @@ def retrieve_transcriptions(namesys1, namesys2, diff, limit, min_length=-1, max_
                             break_value = True
                             break
 
-                    #for l in limit: # check the minimum and maximum value for each metric
+                    for l in limit: # check the minimum and maximum value for each metric
+                        metric = l[0]
+                        minsco = l[1]
+                        maxsco = l[2]
+                        for sys in [sys1, sys2]:
+                            score = sys[id][metric]
+                            if score < minsco or score > maxsco:
+                                break_value = True
+                                break
 
                     if not break_value:
                         #if sys1[id]["wer"] == sys2[id]["wer"]: # le score est le même  # if abs(sys2[k][0] - v[0]) < difference
-                        print(sys1[id])
-                        print(sys2[id])
-                        print("diff:", abs(sys1[id][metric] - sys2[id][metric]))
+                        display(sys1[id], ["wer"]) # ["wer", "cer", "ember", "semdist"])
+                        display(sys2[id], ["wer"]) # ["wer", "cer", "ember", "semdist"])
                         input()
                         
 
 
-retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",10,50]], limit=[["wer",0,50]], min_length=1, max_length=5) #, diff=["wer,<,30", "semdist,<,0", "cer,>,10"]
-
+retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",0,1]], limit=[["wer",0,50]], min_length=1, max_length=5)
 
 
 
@@ -105,14 +126,14 @@ retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",10,50]], limit=[["wer
 
 
 # =========== TO DELETE =============
-
+"""
 def check_data(sys1, sys2):
     incoherence = 0
     coherence = 0
     wers = []
     for k, v in sys1.items():
-        """if v[0] != 100*wer([v[1]], v[2]): # le WER entre la référence et l'hypothèse correspond à celui enregistré
-            print(k, 100*wer([v[1]], v[2]), v)"""
+        # if v[0] != 100*wer([v[1]], v[2]): # le WER entre la référence et l'hypothèse correspond à celui enregistré
+        #     print(k, 100*wer([v[1]], v[2]), v)
         if sys2[k][1] != v[1]: # si les ref sont différentes pour les deux dictionnaires
             print(k)
             print(sys2[k][1])
@@ -133,3 +154,4 @@ def check_data(sys1, sys2):
 # Step 2 : calculer le WER des transcriptions (DONE, c'est ok)
 
 #check_data(sys1, sys2)
+"""
