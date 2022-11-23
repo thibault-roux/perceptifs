@@ -51,15 +51,16 @@ def abs(value): # valeur absolue
         return value
 
 def display(sysid, metrics):
-    print("ref :", sysid["ref"])
-    print("hyp :", sysid["hyp"])
+    txt = "ref : " + sysid["ref"] + "\n"
+    txt += "hyp : " + sysid["hyp"] + "\n"
 
     for metric in metrics:
-        print(metric, ":", float(int(1000*sysid[metric])/1000), end=" ; ")
-    print("\n_")
+        txt += metric + " : " + str(float(int(1000*sysid[metric])/1000)) + " ; "
+    txt = txt[:-3] + "\n_"
+    return txt
 
 
-def retrieve_transcriptions(namesys1, namesys2, diff, limit, min_length=-1, max_length=9999):
+def retrieve_transcriptions(namesys1, namesys2, diff=[], limit=[], inversed=(), min_length=-1, max_length=9999):
     # ====================================
     # conditions optionnelles : 
     # - [one/many] difference relative à une métrique : élevé, faible, nul (identique), peut-être une valeur numérique (exemple: diff(WER) < 10, diff(SemDist) > 20)
@@ -73,6 +74,8 @@ def retrieve_transcriptions(namesys1, namesys2, diff, limit, min_length=-1, max_
 
     sys1 = get_score(namesys1)
     sys2 = get_score(namesys2)
+
+    faccepted = open("transcriptions/temp.txt", "a")
 
     for id, _ in sys1.items():
         if "(h)" in sys1[id]["ref"].split(" "): # remove reference containing disfluences
@@ -108,16 +111,38 @@ def retrieve_transcriptions(namesys1, namesys2, diff, limit, min_length=-1, max_
                                 break_value = True
                                 break
 
-                    if not break_value:
+                    if len(inversed) == 2:
+                        good_value = False
+                        if (( sys1[id][inversed[0]] > sys2[id][inversed[0]]
+                            and sys1[id][inversed[1]] < sys2[id][inversed[1]] )
+                            or ( sys1[id][inversed[0]] < sys2[id][inversed[0]]
+                            and sys1[id][inversed[1]] > sys2[id][inversed[1]] )):
+                            good_value = True
+                    else:
+                        good_value = True
+
+                    if not break_value and good_value:
                         #if sys1[id]["wer"] == sys2[id]["wer"]: # le score est le même  # if abs(sys2[k][0] - v[0]) < difference
-                        display(sys1[id], ["cer", "semdist"]) # ["wer", "cer", "ember", "semdist"])
-                        display(sys2[id], ["cer", "semdist"]) # ["wer", "cer", "ember", "semdist"])
-                        input()
+                        print(display(sys1[id], ["wer", "semdist"])) # ["wer", "cer", "ember", "semdist"]))
+                        print(display(sys2[id], ["wer", "semdist"])) # ["wer", "cer", "ember", "semdist"]))
+                        answer = input("\nSave? (y/n/quit) : ")
+                        if answer == "y":
+                            txt =  display(sys1[id], ["wer", "cer", "ember", "semdist"]) + "\n"
+                            txt += display(sys2[id], ["wer", "cer", "ember", "semdist"]) + "\n=================\n"
+                            faccepted.write(txt)
+                        elif answer == "quit":
+                            return 0
+                        print("=================")
                         
 
+# WER different (one low and the other high)
+retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",30,200]], min_length=3, max_length=20)
 
-retrieve_transcriptions(args.sys1, args.sys2, diff=[["cer",0,10], ["semdist",30,200]], limit=[["wer",-10,70]], min_length=3, max_length=10)
+#
 
+#retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",0,10], ["semdist",30,200]], limit=[["wer",-10,70]], min_length=3, max_length=10)
+retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",0,200], ["semdist",10,80]], limit=[["wer",5,90]], inversed=("wer", "semdist"), min_length=3, max_length=20)
+# inversed=["wer", "semdist"]   ==   [ wer(hyp1)>wer(hyp2) and semdist(hyp1)<semdist(hyp2) ] or [ wer(hyp1)<wer(hyp2) and semdist(hyp1)>semdist(hyp2)
 
 
 
