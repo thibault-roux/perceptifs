@@ -51,18 +51,12 @@ def abs(value): # valeur absolue
         return value
 
 def display(sysid, metrics):
-    print("ref :", sysid["ref"], end=" ; ")
-    print("hyp :", sysid["hyp"], end=" ; ")
+    print("ref :", sysid["ref"])
+    print("hyp :", sysid["hyp"])
 
     for metric in metrics:
         print(metric, ":", float(int(1000*sysid[metric])/1000), end=" ; ")
-    # print("cer :", float(int(1000*sysid["cer"])/1000), end=" ; ")
-    # print("ember :", float(int(1000*sysid["ember"])/1000), end=" ; ")
-    # print("semdist :", float(int(1000*sysid["semdist"])/1000), end=" ; ")
-    
-    
-    
-    print()
+    print("\n_")
 
 
 def retrieve_transcriptions(namesys1, namesys2, diff, limit, min_length=-1, max_length=9999):
@@ -93,6 +87,9 @@ def retrieve_transcriptions(namesys1, namesys2, diff, limit, min_length=-1, max_
                         metric = d[0]
                         minsco = d[1] # minimum difference between the score of sys1 and sys2 
                         maxsco = d[2] # maximum difference between the score of sys1 and sys2
+                        if metric not in sys1[id] or metric not in sys2[id]:
+                            break_value = True
+                            break
                         difference = abs(sys1[id][metric] - sys2[id][metric])
                         if difference < minsco or difference > maxsco:
                             break_value = True
@@ -102,6 +99,9 @@ def retrieve_transcriptions(namesys1, namesys2, diff, limit, min_length=-1, max_
                         metric = l[0]
                         minsco = l[1]
                         maxsco = l[2]
+                        if metric not in sys1[id] or metric not in sys2[id]:
+                            break_value = True
+                            break
                         for sys in [sys1, sys2]:
                             score = sys[id][metric]
                             if score < minsco or score > maxsco:
@@ -110,13 +110,13 @@ def retrieve_transcriptions(namesys1, namesys2, diff, limit, min_length=-1, max_
 
                     if not break_value:
                         #if sys1[id]["wer"] == sys2[id]["wer"]: # le score est le même  # if abs(sys2[k][0] - v[0]) < difference
-                        display(sys1[id], ["wer"]) # ["wer", "cer", "ember", "semdist"])
-                        display(sys2[id], ["wer"]) # ["wer", "cer", "ember", "semdist"])
+                        display(sys1[id], ["cer", "semdist"]) # ["wer", "cer", "ember", "semdist"])
+                        display(sys2[id], ["cer", "semdist"]) # ["wer", "cer", "ember", "semdist"])
                         input()
                         
 
 
-retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",0,1]], limit=[["wer",0,50]], min_length=1, max_length=5)
+retrieve_transcriptions(args.sys1, args.sys2, diff=[["cer",0,10], ["semdist",30,200]], limit=[["wer",-10,70]], min_length=3, max_length=10)
 
 
 
