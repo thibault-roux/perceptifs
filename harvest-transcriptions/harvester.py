@@ -44,6 +44,42 @@ def get_score(sys): # return a dictionary -> dico[id] = [ref, hyp, wer, cer, emb
 
 
 
+
+
+
+# =========== TO DELETE =============
+def check_data(sys1, sys2):
+    incoherence = 0
+    coherence = 0
+    wers = []
+    for k, v in sys1.items():
+        # if v[0] != 100*wer([v[1]], v[2]): # le WER entre la référence et l'hypothèse correspond à celui enregistré
+        #     print(k, 100*wer([v[1]], v[2]), v)
+        if sys2[k]["ref"] != v["ref"]: # si les ref sont différentes pour les deux dictionnaires
+            print(k)
+            print(sys2[k]["ref"])
+            print(v["ref"])
+            print()
+            incoherence += 1
+            wers.append(100*wer([v["ref"]], [sys2[k]["ref"]]))
+        else:
+            coherence += 1
+    print("Il y a " + str(incoherence) + " incohérence(s) entre les deux fichiers")
+    print("Il y a " + str(coherence) + " cohérence(s) entre les deux fichiers")
+    print("WER  moyen: ", sum(wers)/len(wers))
+    input("Affichage des wers...\n")
+    print(wers)
+
+# sys1 = get_score(args.sys1)
+# sys2 = get_score(args.sys2)
+# check_data(sys1, sys2)
+
+
+
+
+
+
+
 def abs(value): # valeur absolue
     if value < 0:
         return -value
@@ -163,40 +199,3 @@ retrieve_transcriptions(args.sys1, args.sys2, limit=[["wer",5,90]], inversed=("w
 #retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",0,10], ["semdist",30,200]], limit=[["wer",-10,70]], min_length=3, max_length=10)
 #retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",0,200], ["semdist",10,80]], limit=[["wer",5,90]], inversed=("wer", "semdist"), min_length=3, max_length=20)
 # inversed=["wer", "semdist"]   ==   [ wer(hyp1)>wer(hyp2) and semdist(hyp1)<semdist(hyp2) ] or [ wer(hyp1)<wer(hyp2) and semdist(hyp1)>semdist(hyp2)
-
-
-
-
-
-
-
-# =========== TO DELETE =============
-"""
-def check_data(sys1, sys2):
-    incoherence = 0
-    coherence = 0
-    wers = []
-    for k, v in sys1.items():
-        # if v[0] != 100*wer([v[1]], v[2]): # le WER entre la référence et l'hypothèse correspond à celui enregistré
-        #     print(k, 100*wer([v[1]], v[2]), v)
-        if sys2[k][1] != v[1]: # si les ref sont différentes pour les deux dictionnaires
-            print(k)
-            print(sys2[k][1])
-            print(v[1])
-            print()
-            incoherence += 1
-            wers.append(100*wer([v[1]], [sys2[k][1]]))
-        else:
-            coherence += 1
-    print("Il y a " + str(incoherence) + " incohérence(s) entre les deux fichiers")
-    print("Il y a " + str(coherence) + " cohérence(s) entre les deux fichiers")
-    print("WER  moyen: ", sum(wers)/len(wers))
-    input("Affichage des wers...\n")
-    print(wers)
-
-# Step 1 : vérifier que les transcriptions sont alignées (transcription 1 de KD_woR == transcription 1 de KD_wR)
-#   -> 821 incohérences pour 4617 cohérences. Supprimons les incohérences ?
-# Step 2 : calculer le WER des transcriptions (DONE, c'est ok)
-
-#check_data(sys1, sys2)
-"""
