@@ -91,12 +91,17 @@ def display(sysid, metrics):
     txt += "hyp : " + sysid["hyp"] + "\n"
 
     for metric in metrics:
-        txt += metric + " : " + str(float(int(1000*sysid[metric])/1000)) + " ; "
+        try:
+            txt += metric + " : " + str(float(int(1000*sysid[metric])/1000)) + " ; "
+        except KeyError:
+            txt += metric + " : _"
+            print("KeyError:")
+            print(txt)
     txt = txt[:-3] + "\n_"
     return txt
 
 
-def retrieve_transcriptions(namesys1, namesys2, diff=[], limit=[], inversed=(), min_length=-1, max_length=9999):
+def retrieve_transcriptions(filename, namesys1, namesys2, diff=[], limit=[], inversed=(), min_length=-1, max_length=9999):
     # ====================================
     # conditions optionnelles : 
     # - [one/many] difference relative à une métrique : élevé, faible, nul (identique), peut-être une valeur numérique (exemple: diff(WER) < 10, diff(SemDist) > 20)
@@ -111,10 +116,13 @@ def retrieve_transcriptions(namesys1, namesys2, diff=[], limit=[], inversed=(), 
     sys1 = get_score(namesys1)
     sys2 = get_score(namesys2)
 
-    faccepted = open("transcriptions/temp.txt", "a")
+    sorted_sys = [namesys1, namesys2]
+    sorted_sys.sort() # useful to avoir having two files named "sys1-sys2.txt" and "sys2-sys1" as they are the same thing.
+    faccepted = open("transcriptions/mess/" + sorted_sys[0] + "-" + sorted_sys[1] + "_" + filename, "w")
 
     for id, _ in sys1.items():
-        if "(h)" in sys1[id]["ref"].split(" "): # remove reference containing disfluences
+        ref = sys1[id]["ref"]
+        if "(" in ref or ")" in ref: # remove reference containing disfluences
             continue
         if sys1[id]["ref"] == sys2[id]["ref"]: # if references are identical
             if sys1[id]["hyp"] != sys2[id]["hyp"]: # if hypothesis are different
@@ -158,8 +166,7 @@ def retrieve_transcriptions(namesys1, namesys2, diff=[], limit=[], inversed=(), 
                         good_value = True
 
                     if not break_value and good_value:
-                        #if sys1[id]["wer"] == sys2[id]["wer"]: # le score est le même  # if abs(sys2[k][0] - v[0]) < difference
-                        print(display(sys1[id], ["wer", "semdist"])) # ["wer", "cer", "ember", "semdist"]))
+                        """print(display(sys1[id], ["wer", "semdist"])) # ["wer", "cer", "ember", "semdist"]))
                         print(display(sys2[id], ["wer", "semdist"])) # ["wer", "cer", "ember", "semdist"]))
                         answer = input("\nSave? (y/n/quit) : ")
                         if answer == "y":
@@ -168,34 +175,77 @@ def retrieve_transcriptions(namesys1, namesys2, diff=[], limit=[], inversed=(), 
                             faccepted.write(txt)
                         elif answer == "quit":
                             return 0
-                        print("=================")
+                        print("=================")"""
+                        txt =  display(sys1[id], ["wer", "cer", "ember", "semdist"]) + "\n"
+                        txt += display(sys2[id], ["wer", "cer", "ember", "semdist"]) + "\n=================\n"
+                        faccepted.write(txt)
                         
 
-# WER different (one low and the other high)
+
+
+
+def harvester_system(sys1, sys2):
+    metrics = ["wer", "cer", "ember", "semdist", "bertscore"]
+    for m in metrics: # green part
+        # very different value for the specific metric between two hypothesis
+        retrieve_transcriptions(m[0] + "HD", sys1, sys2, diff=[[m,30,90]], min_length=3, max_length=20)
+        # not very different for the specific metric between two hypothesis
+        retrieve_transcriptions(m[0] + "LD", sys1, sys2, diff=[[m,1,15]], min_length=3, max_length=20)
+        # when the metric said that the two hypothesis are equal
+        retrieve_transcriptions(m[0] + "=", sys1, sys2, diff=[[m,0,0]], min_length=3, max_length=20)
+
+    for m1 in ["wer", "cer"]:
+        for m2 in metrics:
+            if m1 != m2:
+                # m1 identical but different m2 value
+                retrieve_transcriptions(m1[0] + "=;" + m2[0] + "D", sys1, sys2, diff=[[m1,0,0], [m2,1,999]], min_length=3, max_length=20)
+
+    for i in range(len(metrics)):
+        for j in range(i+1, len(metrics)):
+            m1 = metrics[i]
+            m2 = metrics[j]
+            # WER indicate that one hypothesis is better but Semdist indicate the other as the best
+            retrieve_transcriptions(m1 + "INV" + m2, sys1, sys2, limit=[["wer",5,90]], inversed=("wer", "semdist"), min_length=3, max_length=20)
+
+
+def harvester():
+    harvester_system(args.sys1, args.sys2)
+
+
+
+
+
+
+
+
+
+
+
+#retrieve_transcriptions("", args.sys1, args.sys2, diff=[["wer",0,10], ["semdist",30,200]], limit=[["wer",-10,70]], min_length=3, max_length=10)
+#retrieve_transcriptions("", args.sys1, args.sys2, diff=[["wer",0,200], ["semdist",10,80]], limit=[["wer",5,90]], inversed=("wer", "semdist"), min_length=3, max_length=20)
+# inversed=["wer", "semdist"]   ==   [ wer(hyp1)>wer(hyp2) and semdist(hyp1)<semdist(hyp2) ] or [ wer(hyp1)<wer(hyp2) and semdist(hyp1)>semdist(hyp2)
+
+"""# WER different (one low and the other high)
 print("\n\n-----\nWER very different:")
-retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",30,200]], min_length=3, max_length=20)
+retrieve_transcriptions("wer30-90", args.sys1, args.sys2, diff=[["wer",30,90]], min_length=3, max_length=20)
 
 # WER close
 print("\n\n-----\nWER pretty close:")
-retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",1,15]], min_length=3, max_length=20)
+retrieve_transcriptions("wer1-15", args.sys1, args.sys2, diff=[["wer",1,15]], min_length=3, max_length=20)
 
 # WER identical
 print("\n\n-----\nWER identical:")
-retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",0,0]], min_length=3, max_length=20) # maybe I should limit the maximum wer to be below 100%
+retrieve_transcriptions("wer0", args.sys1, args.sys2, diff=[["wer",0,0]], min_length=3, max_length=20) # maybe I should limit the maximum wer to be below 100%
 
 # CER identical
 print("\n\n-----\nCER identical:")
-retrieve_transcriptions(args.sys1, args.sys2, diff=[["cer",0,0]], min_length=3, max_length=20) # maybe I should limit the maximum cer to be below 100%
+retrieve_transcriptions("cer0", args.sys1, args.sys2, diff=[["cer",0,0]], min_length=3, max_length=20) # maybe I should limit the maximum cer to be below 100%
 
 # WER identical but different semantical value
 print("\n\n-----\nWER identical but different semdist:")
-retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",0,0], ["semdist",2,999]], min_length=3, max_length=20)
+retrieve_transcriptions("wer0semdist2-999", args.sys1, args.sys2, diff=[["wer",0,0], ["semdist",2,999]], min_length=3, max_length=20)
 
 # WER indicate that one hypothesis is better but Semdist indicate the other as the best
 print("\n\n-----\nWER and Semdist are contradictory:")
-retrieve_transcriptions(args.sys1, args.sys2, limit=[["wer",5,90]], inversed=("wer", "semdist"), min_length=3, max_length=20)
-
-
-#retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",0,10], ["semdist",30,200]], limit=[["wer",-10,70]], min_length=3, max_length=10)
-#retrieve_transcriptions(args.sys1, args.sys2, diff=[["wer",0,200], ["semdist",10,80]], limit=[["wer",5,90]], inversed=("wer", "semdist"), min_length=3, max_length=20)
-# inversed=["wer", "semdist"]   ==   [ wer(hyp1)>wer(hyp2) and semdist(hyp1)<semdist(hyp2) ] or [ wer(hyp1)<wer(hyp2) and semdist(hyp1)>semdist(hyp2)
+retrieve_transcriptions("opp_wer-semdist", args.sys1, args.sys2, limit=[["wer",5,90]], inversed=("wer", "semdist"), min_length=3, max_length=20)
+"""
