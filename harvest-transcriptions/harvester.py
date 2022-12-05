@@ -118,7 +118,7 @@ def retrieve_transcriptions(filename, namesys1, namesys2, diff=[], limit=[], inv
 
     sorted_sys = [namesys1, namesys2]
     sorted_sys.sort() # useful to avoir having two files named "sys1-sys2.txt" and "sys2-sys1" as they are the same thing.
-    faccepted = open("transcriptions/mess/" + sorted_sys[0] + "-" + sorted_sys[1] + "_" + filename, "w")
+    faccepted = open("transcriptions/mess/" + sorted_sys[0] + "-" + sorted_sys[1] + "/" + filename, "w")
 
     for id, _ in sys1.items():
         ref = sys1[id]["ref"]
@@ -211,7 +211,7 @@ def harvester_system(sys1, sys2):
 def harvester():
     harvester_system(args.sys1, args.sys2)
 
-
+harvester()
 
 
 
