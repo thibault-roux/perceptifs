@@ -1,4 +1,5 @@
 from jiwer import wer
+import os
 
 
 import argparse
@@ -94,7 +95,7 @@ def display(sysid, metrics):
         try:
             txt += metric + " : " + str(float(int(1000*sysid[metric])/1000)) + " ; "
         except KeyError:
-            txt += metric + " : _"
+            txt += metric + " : _ ; "
             print("KeyError:")
             print(txt)
     txt = txt[:-3] + "\n_"
@@ -113,12 +114,11 @@ def retrieve_transcriptions(filename, namesys1, namesys2, diff=[], limit=[], inv
     # - références identiques
     # - hypothèses différentes
 
+    
+    faccepted = open("transcriptions/mess/" + namesys1 + "-" + namesys2 + "/" + filename, "w")
+
     sys1 = get_score(namesys1)
     sys2 = get_score(namesys2)
-
-    sorted_sys = [namesys1, namesys2]
-    sorted_sys.sort() # useful to avoir having two files named "sys1-sys2.txt" and "sys2-sys1" as they are the same thing.
-    faccepted = open("transcriptions/mess/" + sorted_sys[0] + "-" + sorted_sys[1] + "/" + filename, "w")
 
     for id, _ in sys1.items():
         ref = sys1[id]["ref"]
@@ -166,18 +166,9 @@ def retrieve_transcriptions(filename, namesys1, namesys2, diff=[], limit=[], inv
                         good_value = True
 
                     if not break_value and good_value:
-                        """print(display(sys1[id], ["wer", "semdist"])) # ["wer", "cer", "ember", "semdist"]))
-                        print(display(sys2[id], ["wer", "semdist"])) # ["wer", "cer", "ember", "semdist"]))
-                        answer = input("\nSave? (y/n/quit) : ")
-                        if answer == "y":
-                            txt =  display(sys1[id], ["wer", "cer", "ember", "semdist"]) + "\n"
-                            txt += display(sys2[id], ["wer", "cer", "ember", "semdist"]) + "\n=================\n"
-                            faccepted.write(txt)
-                        elif answer == "quit":
-                            return 0
-                        print("=================")"""
-                        txt =  display(sys1[id], ["wer", "cer", "ember", "semdist"]) + "\n"
-                        txt += display(sys2[id], ["wer", "cer", "ember", "semdist"]) + "\n=================\n"
+                        # txt =  display(sys1[id], ["wer", "cer", "ember", "semdist"]) + "\n"
+                        # txt += display(sys2[id], ["wer", "cer", "ember", "semdist"]) + "\n=================\n"
+                        txt = id + "\t" + sys1[id]["ref"] + "\t" + sys1[id]["hyp"] + "\t" + sys2[id]["hyp"] + "\n"
                         faccepted.write(txt)
                         
 
@@ -208,10 +199,16 @@ def harvester_system(sys1, sys2):
             retrieve_transcriptions(m1 + "INV" + m2, sys1, sys2, limit=[["wer",5,90]], inversed=("wer", "semdist"), min_length=3, max_length=20)
 
 
-def harvester():
-    harvester_system(args.sys1, args.sys2)
+def harvester(sys1, sys2):
+    sorted_sys = [sys1, sys2]
+    sorted_sys.sort() # useful to avoir having two files named "sys1-sys2.txt" and "sys2-sys1" as they are the same thing.
+    path = "transcriptions/mess/" + sorted_sys[0] + "-" + sorted_sys[1]
+    if not os.path.exists(path):
+        os.makedirs(path)
+    harvester_system(sorted_sys[0], sorted_sys[1])
 
-harvester()
+if __name__ == '__main__':
+    harvester(args.sys1, args.sys2)
 
 
 
