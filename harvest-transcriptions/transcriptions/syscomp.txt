@@ -15,7 +15,6 @@ KD_wR-SB_w2v_3k
 KD_wR-SB_w2v_7k
 KD_wR-SB_xlsr
 KD_wR-SB_xlsr_fr
-names.txt
 SB_bpe1000-SB_bpe750
 SB_bpe1000-SB_w2v
 SB_bpe1000-SB_w2v_1k
