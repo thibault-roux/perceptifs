@@ -30,7 +30,16 @@ if (!isset($_POST['answerList'])) {
 	$basename = str_replace('/','',$_SESSION['subjectID']);
 	$file = fopen('results/'.$basename.'.json', 'w');
 	$timestamp = date_format(date_create(), "Y-m-d H:i:s");
-	fwrite($file, '{"name": "'.$_SESSION['subjectName'].'", "email": "'.$_SESSION['subjectEmail'].'", "timestamp": "'.$timestamp.'", "answers": '.$_POST['answerList'].'}');
+	fwrite($file, '{
+		"name": "'.$_SESSION['subjectName'].'", 
+		"email": "'.$_SESSION['subjectEmail'].'",
+		"age": "'.$_SESSION['subjectAge'].'", 
+		"Langue": "'.$_SESSION['subjectLangue'].'",
+		"NbrLang": "'.$_SESSION['subjectNbrLang'].'",
+		"Etudes": "'.$_SESSION['subjectEtudes'].'",
+		"timestamp": "'.$timestamp.'",
+		"answers": '.$_POST['answerList'].'
+	}');
 	fwrite($file, "\n");
 	fclose($file);
 	
