@@ -124,6 +124,8 @@ def retrieve_transcriptions(filename, namesys1, namesys2, diff=[], limit=[], inv
         ref = sys1[id]["ref"]
         if "(" in ref or ")" in ref: # remove reference containing disfluences
             continue
+        if sys1[id]["hyp"] == '':
+            continue
         if sys1[id]["ref"] == sys2[id]["ref"]: # if references are identical
             if sys1[id]["hyp"] != sys2[id]["hyp"]: # if hypothesis are different
 
