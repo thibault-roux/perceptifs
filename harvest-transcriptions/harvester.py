@@ -32,7 +32,7 @@ def get_score(sys): # return a dictionary -> dico[id] = [ref, hyp, wer, cer, emb
             dico[id]["ref"] = ref # store reference
             dico[id]["hyp"] = hyp # store hypothesis
             
-    for metric in ["wer", "cer", "ember", "semdist"]:
+    for metric in ["wer", "cer", "ember", "semdist", "bertscore"]:
         with open("results/correlation/" + metric + "_" + sys + ".txt", "r", encoding="utf8") as file: # Retrieve score for each metric
             for ligne in file:
                 ligne = ligne[:-1].split("\t")
@@ -181,7 +181,7 @@ def harvester_system(sys1, sys2):
         # very different value for the specific metric between two hypothesis
         retrieve_transcriptions(m[0] + "HD", sys1, sys2, diff=[[m,30,90]], min_length=3, max_length=20)
         # not very different for the specific metric between two hypothesis
-        retrieve_transcriptions(m[0] + "LD", sys1, sys2, diff=[[m,1,15]], min_length=3, max_length=20)
+        retrieve_transcriptions(m[0] + "LD", sys1, sys2, diff=[[m,0.1,15]], min_length=3, max_length=20)
         # when the metric said that the two hypothesis are equal
         retrieve_transcriptions(m[0] + "=", sys1, sys2, diff=[[m,0,0]], min_length=3, max_length=20)
 
