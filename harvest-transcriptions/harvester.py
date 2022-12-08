@@ -120,12 +120,24 @@ def retrieve_transcriptions(filename, namesys1, namesys2, diff=[], limit=[], inv
     sys1 = get_score(namesys1)
     sys2 = get_score(namesys2)
 
+    weird_char = {'ã', '_', '>', '©', '⁇', '<'}
     for id, _ in sys1.items():
         ref = sys1[id]["ref"]
         if "(" in ref or ")" in ref: # remove reference containing disfluences
             continue
-        if sys1[id]["hyp"] == '':
+        if sys1[id]["hyp"] == '' or sys2[id]["hyp"] == '': # remove empty hypothesis
             continue
+        if sys1[id]["hyp"] == sys1[id]["ref"] or sys2[id]["hyp"] == sys2[id]["ref"]: # if ref == hyp
+            continue
+        
+        # retirer les paires contenant des caractères non attendues
+        pb_flag = False
+        for c in weird_char:
+            if c in sys1[id]["hyp"] or c in sys1[id]["ref"] or c in sys2[id]["hyp"]:
+                pb_flag = True
+        if pb_flag:
+            continue
+            
         if sys1[id]["ref"] == sys2[id]["ref"]: # if references are identical
             if sys1[id]["hyp"] != sys2[id]["hyp"]: # if hypothesis are different
 
