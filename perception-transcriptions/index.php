@@ -35,13 +35,13 @@ if (isset($_POST['name']) && isset($_POST['email'])) {
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>100 clics pour la science</title>
+		<title>50 clics pour la science</title>
 		<link rel="stylesheet" type="text/css" href="https://demo-lia.univ-avignon.fr/demo-lia.css">
 	</head>
     <body>
 		<header class="bandeau_lia petit"></header>
 		<section>
-			<h1>100 clics pour la science</h1>
+			<h1>50 clics pour la science</h1>
 			<p>Cette série d’expériences ne doit être menée qu’une fois par sujet. Merci de vous identifier ci-dessous avant de commencer.</p>
 			<p>
 			<form method="post">

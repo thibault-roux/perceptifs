@@ -19,7 +19,7 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>100 clics pour la science</title>
+		<title>50 clics pour la science</title>
 		<link rel="stylesheet" type="text/css" href="https://demo-lia.univ-avignon.fr/demo-lia.css">
 	</head>
     <body>
@@ -30,8 +30,8 @@
 				<progress id="progress" value="0" max="100" style="margin-left: 1em;"></progress>
 			</h2>
 			<div id="currentTest">
-				<!-- <h2><span id="fileName"></span></h2> -->
-				<p><audio id="audioPlayer" controls preload src="">Audio non supporté. 😢</audio></p>
+				<h2><span id="fileName"></span></h2>
+				<!-- <p><audio id="audioPlayer" controls preload src="">Audio non supporté. 😢</audio></p> -->
 				<div id="hypotheses">
 				</div>
 			</div>
@@ -64,24 +64,38 @@
 		 document.getElementById("progress").max = audioFiles.length;
 		 setFile(0);
 		 
+		 function shuffle(array) {
+			let currentIndex = array.length;
+			let randomIndex;
+			while (currentIndex > 0) {
+				randomIndex = Math.floor(Math.random() * currentIndex);
+				currentIndex --;
+				[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+			}
+			return array;
+		 }
 		 
 		 function setFile(index) {
 			 let newFile = audioFiles[index];
-			 document.getElementById("audioPlayer").src = newFile.path;
-			 // document.getElementById("fileName").textContent = newFile.name;
+			 // document.getElementById("audioPlayer").src = newFile.path;
+			 document.getElementById("fileName").textContent = newFile.reference;
 			 document.getElementById("progress").value = index+1;
 			 let hypothesesList = "";
-			 for (hypName in newFile.hypotheses) {
+			 let i = 1;
+			 for (hypName of shuffle(Object.keys(newFile.hypotheses))) {
 				 let hypText = newFile.hypotheses[hypName];
-				 let hypNode = '<div><h3>Réponse '+hypName+' :</h3><p>'+hypText+'</p><button onclick="answer(\''+hypName+'\')">Choisir la réponse '+hypName+'</button></div>';
+				 let hypNode = '<div><h3>Réponse '+i+' :</h3><p>'+hypText+'</p><button onclick="answer(\''+hypName+'\')">Choisir la réponse '+i+'</button></div>';
 				 hypothesesList += hypNode;
+				 i += 1;
 			 }
 			 document.getElementById("hypotheses").innerHTML = hypothesesList;
 		 }
 		 
 		 function answer(value) {
-			 document.getElementById("audioPlayer").pause();
-			 answers.set(audioFiles[currentFileIndex].path, value);
+			 console.log("Debut de answer()")
+			 // document.getElementById("audioPlayer").pause();
+			 // answers.set(audioFiles[currentFileIndex].path, value);
+			 answers.set(audioFiles[currentFileIndex].id, value);
 			 currentFileIndex += 1;
 			 if (currentFileIndex < audioFiles.length) {
 				 setFile(currentFileIndex);
@@ -89,13 +103,14 @@
 				 document.getElementById("hypotheses").innerHTML = "";
 				 document.getElementById("currentTest").hidden = true;
 				 let answerList =  "";
-				 answers.forEach(function(answer, path) {
-					 answerList += "<dt>"+path+"</dt><dd>"+answer+"</dd>";
+				 answers.forEach(function(answer, id) {
+					 answerList += "<dt>"+id+"</dt><dd>"+answer+"</dd>";
 				 });
 				 document.getElementById("answerListRecap").innerHTML = answerList;
 				 document.getElementById("answerList").value = JSON.stringify(Object.fromEntries(answers));
 				 document.getElementById("finished").hidden = false;
 			 }
+			 console.log("Fin de answer()")
 		 }
 	 </script>
 </html>

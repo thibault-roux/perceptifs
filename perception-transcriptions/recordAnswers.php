@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+
 if (!isset($_SESSION['subjectID'])) {
 	header('Location: index.php');
 	exit();
@@ -11,14 +12,14 @@ if (!isset($_SESSION['subjectID'])) {
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>100 clics pour la science — Fin</title>
+		<title>50 clics pour la science — Fin</title>
 		<link rel="stylesheet" type="text/css" href="https://demo-lia.univ-avignon.fr/demo-lia.css">
 	</head>
     <body>
 		<header class="bandeau_lia petit"></header>
 		<section>
 <?php
-if (!isset($_POST['answerList'])) {
+if (!isset($_POST['answerList'])) {	
 	echo '<h1>Erreur</h1>';
 	echo '<p>Une erreur s’est produite. Veuillez recommencer l’expérience.</p>';
 	echo '<p><button onclick="window.location=\'experiment.php\'">Recommencer</button></p>';
@@ -30,6 +31,7 @@ if (!isset($_POST['answerList'])) {
 	$experimentID = str_replace('/','',$_SESSION['experimentID']);
 	
 	// Record the results
+	umask(0007);
 	$file = fopen('results/'.$experimentID.'-'.$subjectID.'.json', 'w');
 	$timestamp = date_format(date_create(), "Y-m-d H:i:s");
 	fwrite($file, '{
@@ -45,6 +47,7 @@ if (!isset($_POST['answerList'])) {
 		.'}');
 	fwrite($file, "\n");
 	fclose($file);
+	
 	
 	// Create the marker file indicating this run was completed.
 	fclose(fopen("runs/".$experimentID."/completed"."/".$subjectID, "w"));
