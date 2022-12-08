@@ -11,7 +11,7 @@ if (!isset($_SESSION['subjectID'])) {
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>Les super expériences de Thibault — Fin</title>
+		<title>100 clics pour la science — Fin</title>
 		<link rel="stylesheet" type="text/css" href="https://demo-lia.univ-avignon.fr/demo-lia.css">
 	</head>
     <body>
@@ -24,27 +24,36 @@ if (!isset($_POST['answerList'])) {
 	echo '<p><button onclick="window.location=\'experiment.php\'">Recommencer</button></p>';
 } else {
 	echo '<h1>Merci</h1>';
-	echo '<p>Cette expérience est maintenant terminée. Merci de votre participation. 😘</p>';
+	echo '<p>Cette expérience est maintenant terminée. Merci de votre participation.</p>';
+	
+	$subjectID = str_replace('/','',$_SESSION['subjectID']);
+	$experimentID = str_replace('/','',$_SESSION['experimentID']);
 	
 	// Record the results
-	$basename = str_replace('/','',$_SESSION['subjectID']);
-	$file = fopen('results/'.$basename.'.json', 'w');
+	$file = fopen('results/'.$experimentID.'-'.$subjectID.'.json', 'w');
 	$timestamp = date_format(date_create(), "Y-m-d H:i:s");
 	fwrite($file, '{
-		"name": "'.$_SESSION['subjectName'].'", 
+		"name": "'.$_SESSION['subjectName'].'",
 		"email": "'.$_SESSION['subjectEmail'].'",
-		"age": "'.$_SESSION['subjectAge'].'", 
-		"Langue": "'.$_SESSION['subjectLangue'].'",
-		"NbrLang": "'.$_SESSION['subjectNbrLang'].'",
-		"Etudes": "'.$_SESSION['subjectEtudes'].'",
+		"age": "'.$_SESSION['subjectAge'].'",
+		"language": "'.$_SESSION['subjectLanguage'].'",
+		"nbOfLanguages": "'.$_SESSION['subjectNbOfLanguages'].'",
+		"educationLevel": "'.$_SESSION['subjectEducationLevel'].'",
 		"timestamp": "'.$timestamp.'",
-		"answers": '.$_POST['answerList'].'
-	}');
+		"ip": "'.$_SERVER['REMOTE_ADDR'].'",
+		"answers": '.$_POST['answerList']
+		.'}');
 	fwrite($file, "\n");
 	fclose($file);
 	
-	session_unset();
-	session_destroy();
+	// Create the marker file indicating this run was completed.
+	fclose(fopen("runs/".$experimentID."/completed"."/".$subjectID, "w"));
+	
+	// Delete the marker file indicating a run was under way.
+	unlink("runs/".$experimentID."/started"."/".$subjectID);
+	
+	// Clean up.
+	unset($_SESSION['experimentID']);
 }
 ?>
 		</section>
