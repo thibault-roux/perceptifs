@@ -49,7 +49,7 @@ if (isset($_POST['name'])) {
 					<input type="text" name="name" id="name" required="Yes" size="60">
 				</p>
 				<p>
-					<label for="age">Âge :</label>
+					<label for="age">Age :</label>
 					<input type="number" name="age" id="age" required="Yes" size="4" min="13" max="125">
 				</p>
 				<p>
