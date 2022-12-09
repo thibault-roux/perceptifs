@@ -16,11 +16,10 @@ function guidv4() {
 }
 
 
-if (isset($_POST['name']) && isset($_POST['email'])) {	
+if (isset($_POST['name'])) {	
 	// Assign an ID
 	$_SESSION['subjectID'] = guidv4();
 	$_SESSION['subjectName'] = $_POST['name'];
-	$_SESSION['subjectEmail'] = $_POST['email'];
 	$_SESSION['subjectAge'] = $_POST['age'];
 	$_SESSION['subjectLanguage'] = $_POST['language'];
 	$_SESSION['subjectNbOfLanguages'] = $_POST['nbLanguages'];
@@ -48,10 +47,6 @@ if (isset($_POST['name']) && isset($_POST['email'])) {
 				<p>
 					<label for="prenom">Nom complet :</label>
 					<input type="text" name="name" id="name" required="Yes" size="60">
-				</p>
-				<p>
-					<label for="prenom">Adresse email :</label>
-					<input type="text" name="email" id="email" required="Yes" size="60">
 				</p>
 				<p>
 					<label for="age">Âge :</label>

@@ -47,7 +47,6 @@
 				</p>
 			</div>
 			<p>Vous avez répondu à toutes les questions. Merci de cliquer sur le bouton ci-dessous pour enregistrer vos réponses.</p>
-			<p>Si vous avez une remarque ou une question, merci d'envoyer un mail à thibault.roux@univ-nantes.fr. Merci pour votre participation !</p>
 			<form method="post" action="recordAnswers.php">
 				<input type="hidden" name="answerList" id="answerList" value="">
 				<input type="submit" value="Envoyer les réponses">

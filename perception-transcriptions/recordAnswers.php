@@ -26,6 +26,7 @@ if (!isset($_POST['answerList'])) {
 } else {
 	echo '<h1>Merci</h1>';
 	echo '<p>Cette expérience est maintenant terminée. Merci de votre participation.</p>';
+	echo "<p>Si vous avez une remarque ou une question, merci d'envoyer un mail à thibault.roux@univ-nantes.fr</p>";
 	
 	$subjectID = str_replace('/','',$_SESSION['subjectID']);
 	$experimentID = str_replace('/','',$_SESSION['experimentID']);
@@ -36,7 +37,6 @@ if (!isset($_POST['answerList'])) {
 	$timestamp = date_format(date_create(), "Y-m-d H:i:s");
 	fwrite($file, '{
 		"name": "'.$_SESSION['subjectName'].'",
-		"email": "'.$_SESSION['subjectEmail'].'",
 		"age": "'.$_SESSION['subjectAge'].'",
 		"language": "'.$_SESSION['subjectLanguage'].'",
 		"nbOfLanguages": "'.$_SESSION['subjectNbOfLanguages'].'",
