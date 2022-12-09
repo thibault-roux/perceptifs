@@ -30,6 +30,8 @@
 				<progress id="progress" value="0" max="100" style="margin-left: 1em;"></progress>
 			</h2>
 			<div id="currentTest">
+				<p>Dans cette expérience, nous comparons des transcriptions automatiques à une référence textuelle. Vous devez choisir la meilleure transcription.&nbsp;</p>
+				<p><b>Référence : </b><span id="fileName" style="border: 1px solid grey; border-radius: 0.75ex; padding-left: 0.6em; padding-right: 0.6em; box-shadow: 0px 0px 3px lightgrey; font-size: 110%; padding-top: 0.2em;"></span></p>
 				<h2><span id="fileName"></span></h2>
 				<!-- <p><audio id="audioPlayer" controls preload src="">Audio non supporté. 😢</audio></p> -->
 				<div id="hypotheses">
@@ -45,6 +47,7 @@
 				</p>
 			</div>
 			<p>Vous avez répondu à toutes les questions. Merci de cliquer sur le bouton ci-dessous pour enregistrer vos réponses.</p>
+			<p>Si vous avez une remarque ou une question, merci d'envoyer un mail à thibault.roux@univ-nantes.fr. Merci pour votre participation !</p>
 			<form method="post" action="recordAnswers.php">
 				<input type="hidden" name="answerList" id="answerList" value="">
 				<input type="submit" value="Envoyer les réponses">
@@ -84,7 +87,7 @@
 			 let i = 1;
 			 for (hypName of shuffle(Object.keys(newFile.hypotheses))) {
 				 let hypText = newFile.hypotheses[hypName];
-				 let hypNode = '<div><h3>Réponse '+i+' :</h3><p>'+hypText+'</p><button onclick="answer(\''+hypName+'\')">Choisir la réponse '+i+'</button></div>';
+				 let hypNode = '<div><h3>Transcription '+i+' :</h3><p>'+hypText+'</p><button onclick="answer(\''+hypName+'\')">Choisir la transcription '+i+'</button></div>';
 				 hypothesesList += hypNode;
 				 i += 1;
 			 }
