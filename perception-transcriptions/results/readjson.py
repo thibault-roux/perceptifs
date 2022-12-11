@@ -29,3 +29,6 @@ for k, v in dico1.items():
 
 print("c:", c)
 print("i:", i)
+
+#with open("../audio/datasets/autoselect.txt", "r", encoding="utf8") as file:
+    

@@ -12,7 +12,7 @@ if (!isset($_SESSION['subjectID'])) {
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>50 clics pour la science — Fin</title>
+		<title>50 clics pour la Science — Fin</title>
 		<link rel="stylesheet" type="text/css" href="https://demo-lia.univ-avignon.fr/demo-lia.css">
 	</head>
     <body>
