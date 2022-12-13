@@ -20,7 +20,7 @@ function selectExperiment($experiments, $subjectID) {
 	umask(0007);
 	// Let's find the first experiment of the list which has not been completed 3 times yet.
 	foreach ($experiments as $experiment) {
-		$maxRunsPerExperiment = 3; // Maximum allowed runs for each experiment.
+		$maxRunsPerExperiment = 5; // Maximum allowed runs for each experiment.
 		
 		// A marker file is created in the folder ./runs/<expID>/completed/ after each complete run.
 		$completedRunsDir = "runs/".$experiment->id."/completed";

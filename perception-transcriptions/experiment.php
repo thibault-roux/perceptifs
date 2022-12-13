@@ -31,7 +31,7 @@
 			</h2>
 			<div id="currentTest">
 				<p>Dans cette expérience, nous comparons des transcriptions automatiques à une référence textuelle. Vous devez choisir la meilleure transcription.&nbsp;</p>
-				<p><b>Référence : </b><span id="fileName" style="border: 1px solid grey; border-radius: 0.75ex; padding-left: 0.6em; padding-right: 0.6em; box-shadow: 0px 0px 3px lightgrey; font-size: 110%; padding-top: 0.2em;"></span></p>
+				<p><b>Référence : </b><span id="fileName" style="border: 1px solid grey; border-radius: 0.75ex; padding-left: 0.6em; padding-right: 0.6em; box-shadow: 0px 0px 3px lightgrey; font-size: 110%; padding-top: 0.2em; line-height: 200%"></span></p>
 				<h2><span id="fileName"></span></h2>
 				<!-- <p><audio id="audioPlayer" controls preload src="">Audio non supporté. 😢</audio></p> -->
 				<div id="hypotheses">
