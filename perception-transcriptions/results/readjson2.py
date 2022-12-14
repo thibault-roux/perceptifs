@@ -98,7 +98,7 @@ if __name__ == "__main__":
     print(total)
 
 
-    human_choices = dict() # humain_choices[20] = {A, A, B, B, A}
+    human_choices = dict() # humain_choices[20] = [A, A, B, B, A]
 
     directory = '.'
     for filename in os.listdir(directory):
@@ -106,7 +106,87 @@ if __name__ == "__main__":
         # checking if it is a file
         if os.path.isfile(f):
             if f[-5:] == ".json":
-                for k, v in json.load(open(f))["answers"].items():
-                    d
-                input()
+                for id, choice in json.load(open(f))["answers"].items():
+                    id = int(id)
+                    if id in human_choices:
+                        human_choices[id].append(choice)
+                    else:
+                        human_choices[id] = [choice]
     
+
+    experimentData = dict()
+    experimentData_list = json.load(open("../experimentData.json"))
+    for i in range(len(experimentData_list)):
+        for j in range(len(experimentData_list[i]["audioList"])):
+            id = int(experimentData_list[i]["audioList"][j]["id"])
+            ref = experimentData_list[i]["audioList"][j]["reference"]
+            hypA = experimentData_list[i]["audioList"][j]["hypotheses"]["A"]
+            hypB = experimentData_list[i]["audioList"][j]["hypotheses"]["B"]
+            experimentData[id] = dict()
+            experimentData[id]["reference"] = ref
+            experimentData[id]["hypA"] = hypA
+            experimentData[id]["hypB"] = hypB
+
+    
+    
+    # Right now, I have a variable with the SCORES for every metric given reference and hypothesis.
+    # SCORES[ref][hyp][metric] = {"system": [system1, system2], "score": score}
+
+    # I also have the human_choices given id
+    # human_choices[id] = [A, B, B, B, A]
+
+    # Now, I have the reference and hypothesis given id --> open experimentData.json
+    # experimentData[id] = {"reference": je sais, "hypA": je c, "hypB": je sai}
+
+    # I have to browse human_choice and increment score for each metric
+    
+    grade = dict()
+    losses = dict()
+    keyerror = dict()
+    for metric in metrics:
+        grade[metric] = 0
+        keyerror[metric] = 0
+        losses[metric] = 0
+
+    
+    # BROWSING
+    for i in range(1, len(human_choices)+1):
+        print(i, human_choices[i])
+        # look at score for each metric
+        nbrA = human_choices[i].count("A")
+        nbrB = human_choices[i].count("B")
+
+        ref = experimentData[i]["reference"]
+        hypA = experimentData[i]["hypA"]
+        hypB = experimentData[i]["hypB"]
+        
+        if nbrA > nbrB: # A is winner
+            # look at SCORES[ref][hypA]
+            # browse each metric
+            
+            for metric in metrics:
+                try:
+                    if SCORES[ref][hypA][metric]["score"] < SCORES[ref][hypB][metric]["score"]: # minimum because lower is better / A is better
+                        grade[metric] += 1
+                    else:
+                        losses[metric] += 1
+                except KeyError:
+                    keyerror[metric] += 1
+        elif nbrA < nbrB:
+            for metric in metrics:
+                try:
+                    if SCORES[ref][hypA][metric]["score"] > SCORES[ref][hypB][metric]["score"]: # minimum because lower is better / B is better
+                        grade[metric] += 1
+                    else:
+                        losses[metric] += 1
+                except KeyError:
+                    keyerror[metric] += 1
+        else:
+            # ex aequo, ignore?
+            continue
+    
+    for metric in metrics:
+        print(metric[:5]+":\tgrade = "+str(grade[metric])+"\tlosses = "+str(losses[metric])+"\tscore = "+str(grade[metric]/losses[metric]*100)+"\tkeyerror = "+str(keyerror[metric]))
+    print("total:", total)
+
+    # y a t'il beaucoup d'ex aequo selon les métriques?
