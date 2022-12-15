@@ -189,7 +189,104 @@ if __name__ == "__main__":
             continue
     
     for metric in metrics:
-        print(metric[:5]+":\tgrade = "+str(grade[metric])+"\tlosses = "+str(losses[metric])+"\tscore = "+str(grade[metric]/losses[metric]*100)+"\tkeyerror = "+str(keyerror[metric]))
-    print("total:", total)
+        print(metric[:5]+":\tgrade = "+str(grade[metric])+"\tlosses = "+str(losses[metric])+"\tscore = "+str(grade[metric]/(grade[metric]+losses[metric])*100)+"\tkeyerror = "+str(keyerror[metric]))
+    
+    
 
-    # y a t'il beaucoup d'ex aequo selon les métriques?
+    input("Continuer sur les meilleures systèmes selon les humains ?")
+
+    system_grade = dict()
+    for system in systems:
+        system_grade[system] = dict()
+        system_grade[system]["win"] = 0
+        system_grade[system]["lost"] = 0
+        system_grade[system]["egal"] = 0
+
+    for i in range(1, len(human_choices)+1):
+        # SCORES[ref][hyp][metric] = {"system": [system1, system2], "score": score}
+        nbrA = human_choices[i].count("A")
+        nbrB = human_choices[i].count("B")
+
+        ref = experimentData[i]["reference"]
+        hypA = experimentData[i]["hypA"]
+        hypB = experimentData[i]["hypB"]
+
+        if nbrA > nbrB:
+            for system in SCORES[ref][hypA]["wer"]["system"]:
+                system_grade[system]["win"] += 1
+            for system in SCORES[ref][hypB]["wer"]["system"]:
+                system_grade[system]["lost"] += 1
+        elif nbrA < nbrB:
+            for system in SCORES[ref][hypB]["wer"]["system"]:
+                try:
+                    system_grade[system]["win"] += 1
+                except KeyError:
+                    print(system)
+                    raise
+            for system in SCORES[ref][hypA]["wer"]["system"]:
+                system_grade[system]["lost"] += 1
+        else:
+            for system in SCORES[ref][hypB]["wer"]["system"]:
+                system_grade[system]["egal"] += 1
+            for system in SCORES[ref][hypA]["wer"]["system"]:
+                system_grade[system]["egal"] += 1
+
+    print()
+    for system in systems:
+        print(system,"  \t", end="")
+        print("ratio:", float(int(system_grade[system]["win"]/(system_grade[system]["win"]+system_grade[system]["lost"])*10000))/100, end="\t")
+        print("win:", system_grade[system]["win"], end="  \t")
+        print("lost:", system_grade[system]["lost"], end="\t")
+        print("egal:", system_grade[system]["egal"])
+
+        # c'est nul comme c'est fait, le s2s ne peut pas être meilleur que Kaldi...?
+
+
+
+    input("Not very good method to look at global performances, let's look at the versus level")
+    system_grade = dict()
+    for system1 in systems:
+        system_grade[system1] = dict()
+        for system2 in systems:
+            if system1 != system2:
+                system_grade[system1][system2] = dict()
+                system_grade[system1][system2]["win"] = 0
+                system_grade[system1][system2]["lost"] = 0
+                system_grade[system1][system2]["egal"] = 0
+
+    for i in range(1, len(human_choices)+1):
+        # SCORES[ref][hyp][metric] = {"system": [system1, system2], "score": score}
+        nbrA = human_choices[i].count("A")
+        nbrB = human_choices[i].count("B")
+
+        ref = experimentData[i]["reference"]
+        hypA = experimentData[i]["hypA"]
+        hypB = experimentData[i]["hypB"]
+
+        if nbrA > nbrB:
+            for system in SCORES[ref][hypA]["wer"]["system"]:
+                system_grade[system]["win"] += 1
+            for system in SCORES[ref][hypB]["wer"]["system"]:
+                system_grade[system]["lost"] += 1
+        elif nbrA < nbrB:
+            for system in SCORES[ref][hypB]["wer"]["system"]:
+                try:
+                    system_grade[system]["win"] += 1
+                except KeyError:
+                    print(system)
+                    raise
+            for system in SCORES[ref][hypA]["wer"]["system"]:
+                system_grade[system]["lost"] += 1
+        else:
+            for system in SCORES[ref][hypB]["wer"]["system"]:
+                system_grade[system]["egal"] += 1
+            for system in SCORES[ref][hypA]["wer"]["system"]:
+                system_grade[system]["egal"] += 1
+
+    print()
+    for system in systems:
+        print(system,"  \t", end="")
+        print("ratio:", float(int(system_grade[system]["win"]/(system_grade[system]["win"]+system_grade[system]["lost"])*10000))/100, end="\t")
+        print("win:", system_grade[system]["win"], end="  \t")
+        print("lost:", system_grade[system]["lost"], end="\t")
+        print("egal:", system_grade[system]["egal"])
