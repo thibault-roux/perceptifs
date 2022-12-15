@@ -159,6 +159,9 @@ if __name__ == "__main__":
         ref = experimentData[i]["reference"]
         hypA = experimentData[i]["hypA"]
         hypB = experimentData[i]["hypB"]
+
+        if nbrA + nbrB < 5:
+            continue
         
         if nbrA > nbrB: # A is winner
             # look at SCORES[ref][hypA]
