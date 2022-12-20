@@ -45,7 +45,7 @@ if (isset($_POST['name'])) {
 			<p>
 			<form method="post">
 				<p>
-					<label for="prenom">Prénom NOM :</label>
+					<label for="prenom">Prénom NOM (sinon <i>anonyme</i>) :</label>
 					<input type="text" name="name" id="name" required="Yes" size="60">
 				</p>
 				<p>
