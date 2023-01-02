@@ -139,7 +139,27 @@ if __name__ == "__main__":
     # experimentData[id] = {"reference": je sais, "hypA": je c, "hypB": je sai}
 
     # I have to browse human_choice and increment score for each metric
+
+    dataset_txt = ""
+    for id, v in experimentData.items():
+        reference = v["reference"]
+        hypA = v["hypA"]
+        hypB = v["hypB"]
+        try:
+            nbrA = str(human_choices[id].count("A"))
+        except KeyError:
+            nbrA = "0"
+        try:
+            nbrB = str(human_choices[id].count("B"))
+        except KeyError:
+            nbrB = "0"
+        dataset_txt += reference + "\t" + hypA + "\t" + nbrA + "\t" + hypB + "\t" + nbrB + "\n"
     
+    with open("hats.txt", "w", encoding="utf8") as file:
+        file.write(dataset_txt)
+
+    exit(-1)
+
     grade = dict()
     losses = dict()
     keyerror = dict()
@@ -191,7 +211,7 @@ if __name__ == "__main__":
     for metric in metrics:
         print(metric[:5]+":\tgrade = "+str(grade[metric])+"\tlosses = "+str(losses[metric])+"\tscore = "+str(grade[metric]/(grade[metric]+losses[metric])*100)+"\tkeyerror = "+str(keyerror[metric]))
     
-    
+    # en plus de ça, je pourrais faire un nbr de versus entre les métriques
 
     input("Continuer sur les meilleures systèmes selon les humains ?")
 
@@ -244,15 +264,19 @@ if __name__ == "__main__":
 
 
     input("Not very good method to look at global performances, let's look at the versus level")
-    system_grade = dict()
+    system_versus = dict()
+    system_winner = dict()
+    system_looser = dict()
+    system_egal = dict()
     for system1 in systems:
-        system_grade[system1] = dict()
+        system_winner[system1] = 0
+        system_looser[system1] = 0
+        system_egal[system1] = 0
         for system2 in systems:
             if system1 != system2:
-                system_grade[system1][system2] = dict()
-                system_grade[system1][system2]["win"] = 0
-                system_grade[system1][system2]["lost"] = 0
-                system_grade[system1][system2]["egal"] = 0
+                system_pair = [system1, system2]
+                system_pair.sort()
+                system_versus["-".join(system_pair)] = []
 
     for i in range(1, len(human_choices)+1):
         # SCORES[ref][hyp][metric] = {"system": [system1, system2], "score": score}
@@ -264,29 +288,66 @@ if __name__ == "__main__":
         hypB = experimentData[i]["hypB"]
 
         if nbrA > nbrB:
-            for system in SCORES[ref][hypA]["wer"]["system"]:
-                system_grade[system]["win"] += 1
-            for system in SCORES[ref][hypB]["wer"]["system"]:
-                system_grade[system]["lost"] += 1
+            winners = SCORES[ref][hypA]["wer"]["system"]
+            loosers = SCORES[ref][hypB]["wer"]["system"]
         elif nbrA < nbrB:
-            for system in SCORES[ref][hypB]["wer"]["system"]:
-                try:
-                    system_grade[system]["win"] += 1
-                except KeyError:
-                    print(system)
-                    raise
-            for system in SCORES[ref][hypA]["wer"]["system"]:
-                system_grade[system]["lost"] += 1
+            winners = SCORES[ref][hypB]["wer"]["system"]
+            loosers = SCORES[ref][hypA]["wer"]["system"]
         else:
-            for system in SCORES[ref][hypB]["wer"]["system"]:
-                system_grade[system]["egal"] += 1
-            for system in SCORES[ref][hypA]["wer"]["system"]:
-                system_grade[system]["egal"] += 1
+            continue
+
+        for winner in winners:
+            for looser in loosers:
+                if winner in loosers or looser in winners: # TODELETE
+                    print("ERROR: winner in loosers or looser in winners")
+                    exit(-1)
+                system_pair = [winner, looser]
+                system_pair.sort()
+                system_versus["-".join(system_pair)].append(winner) # we only store the winner
+        
+    print()
+
+    # algorithme :
+    # compter les versus["KD_woR-SB_w2v"] = [KD_woR, KD_woR, SB_w2v]
+    # parcourir les versus les plus nombreux dans l'ordre décroissant
+    #   stocker les conditions de victoire
+    #   supprimer chaque versus qu'on a croisé ?
+    # problème insoluble
+    # regarder qui bat le plus de systèmes
+
+    """for k, _ in system_versus.items():
+        print(k, len(system_versus[k]))
+    input()"""
+    for k in sorted(system_versus, key=lambda k: len(system_versus[k]), reverse=True):
+        print(k, len(system_versus[k]))
+        pair = k.split("-")
+        sys1 = pair[0]
+        sys2 = pair[1]
+        nbrsys1 = system_versus[k].count(sys1)
+        nbrsys2 = system_versus[k].count(sys2)
+        if nbrsys1 > nbrsys2:
+            system_winner[sys1] += 1
+            system_looser[sys2] += 1
+        elif nbrsys1 < nbrsys2:
+            system_winner[sys2] += 1
+            system_looser[sys1] += 1
+        else:
+            system_egal[sys1] += 1
+            system_egal[sys2] += 1
 
     print()
-    for system in systems:
-        print(system,"  \t", end="")
-        print("ratio:", float(int(system_grade[system]["win"]/(system_grade[system]["win"]+system_grade[system]["lost"])*10000))/100, end="\t")
-        print("win:", system_grade[system]["win"], end="  \t")
-        print("lost:", system_grade[system]["lost"], end="\t")
-        print("egal:", system_grade[system]["egal"])
+    system_ratio = dict()
+    for s in systems:
+        w = system_winner[s]
+        l = system_looser[s]
+        e = system_egal[s]
+        ratio = float(int(w/(w+l)*10000)/100)
+        system_ratio[s] = ratio
+        print(s+"   \tratio = "+str(ratio)+"\twinner = "+str(w)+"\tlooser = "+str(l)+"\tequal = "+str(e))
+
+    print()
+    i = 1
+    for k, v in dict(sorted(system_ratio.items(), key=lambda item: item[1], reverse=True)).items():
+        print(k, v, i)
+        i += 1
+        input()
