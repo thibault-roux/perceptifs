@@ -140,7 +140,7 @@ if __name__ == "__main__":
 
     # I have to browse human_choice and increment score for each metric
 
-    dataset_txt = ""
+    dataset_txt = "reference\t" + "hypA\t" + "nbrA\t" + "hypB\t" + "nbrB\n"
     for id, v in experimentData.items():
         reference = v["reference"]
         hypA = v["hypA"]
@@ -158,7 +158,6 @@ if __name__ == "__main__":
     with open("hats.txt", "w", encoding="utf8") as file:
         file.write(dataset_txt)
 
-    exit(-1)
 
     grade = dict()
     losses = dict()
