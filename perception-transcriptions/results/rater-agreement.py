@@ -150,6 +150,32 @@ def kappa_implemented(filename):
 
 
 
+
+def krippendorff_implemented(filename):
+    hats = dict()
+    with open(filename, "r", encoding="utf8") as f:
+        id = 1
+        next(f)
+        for line in f:
+            line = line.strip().split("\t")
+            hats[id] = {"A": line[2], "B": line[4]}
+            id += 1
+    import krippendorff
+
+    krippendorffs = []
+    for i in range(20):
+        id = i*50+1
+        n = int(hats[id]["A"]) + int(hats[id]["B"]) # 7 most of the times
+        z = []
+        for id in range(id, id+50):
+            A = int(hats[id]["A"])
+            B = int(hats[id]["B"])
+            z.append([A, B])
+        z = np.array(z)
+        krippendorffs.append(krippendorff.alpha(z))
+    print("Average Krippendorff:", sum(krippendorffs)/len(krippendorffs))
+
+
 if __name__ == "__main__":
     filename = "zhatstodel.txt"
     rater_agreement_average(filename)
@@ -158,3 +184,4 @@ if __name__ == "__main__":
     # agreement_global(filename)
 
     kappa_implemented(filename)
+    krippendorff_implemented(filename)
