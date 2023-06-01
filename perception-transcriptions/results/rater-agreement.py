@@ -1,10 +1,10 @@
+import numpy as np
 
-
-def rater_agreement_average():
+def rater_agreement_average(filename):
 
     # read the hats.txt file
     hats = dict()
-    with open("hats.txt", "r", encoding="utf8") as f:
+    with open(filename, "r", encoding="utf8") as f:
         id = 1
         next(f)
         for line in f:
@@ -40,11 +40,11 @@ def rater_agreement_average():
 
 
 
-def rater_agreement_full():
+def rater_agreement_full(filename):
 
     # read the hats.txt file
     hats = dict()
-    with open("hats.txt", "r", encoding="utf8") as f:
+    with open(filename, "r", encoding="utf8") as f:
         id = 1
         next(f)
         for line in f:
@@ -82,10 +82,10 @@ def rater_agreement_full():
 
 
 
-def agreement_global():
+def agreement_global(filename):
     # read the hats.txt file
     hats = dict()
-    with open("hats.txt", "r", encoding="utf8") as f:
+    with open(filename, "r", encoding="utf8") as f:
         id = 1
         next(f)
         for line in f:
@@ -102,11 +102,59 @@ def agreement_global():
         agreement = max(A, B) / (A + B)        
         agreements.append(agreement)
     print("Average agreement:", sum(agreements)/len(agreements))
-    agreeset = set(agreements)
-    print(agreeset)
+    agreeset = list(set(agreements))
+    agreeset.sort()
+    percent = 0
+    percents = []
+    for agree in agreeset:
+        percent += agreements.count(agree)/len(agreements)
+        percents.append(percent)
+        print(int(agree*1000)/1000, int(agreements.count(agree)/len(agreements)*10000)/100)
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots()
+    ax.scatter(agreeset, percents)
+    plt.show()
+    plt.savefig("zagreement.png")
+
+
+
+
+def kappa_implemented(filename):
+    hats = dict()
+    with open(filename, "r", encoding="utf8") as f:
+        id = 1
+        next(f)
+        for line in f:
+            line = line.strip().split("\t")
+            hats[id] = {"A": line[2], "B": line[4]}
+            id += 1
+
+    # from statsmodels.stats.inter_rater import fleiss_kappa
+    from statsmodels.stats import inter_rater as irr
+
+    kappas = []
+    for i in range(20):
+        id = i*50+1
+        n = int(hats[id]["A"]) + int(hats[id]["B"]) # 7 most of the times
+        z = []
+        for id in range(id, id+50):
+            A = int(hats[id]["A"])
+            B = int(hats[id]["B"])
+            z.append([A, B])
+        z = np.array(z)
+        agg = (z, np.array([0, 1]))
+        kappas.append(irr.fleiss_kappa(agg[0], method='fleiss'))
+    print("Average Kappa:", sum(kappas)/len(kappas))
+
+
+
+
 
 if __name__ == "__main__":
-    rater_agreement_average()
-    # rater_agreement_full()
+    filename = "zhatstodel.txt"
+    rater_agreement_average(filename)
+    # rater_agreement_full(filename)
 
-    agreement_global()
+    # agreement_global(filename)
+
+    kappa_implemented(filename)
