@@ -1,4 +1,4 @@
-
+import random
 
 def load_transcriptions(system):
     id2refhyp = dict()
@@ -36,11 +36,11 @@ if __name__ == "__main__":
     for system in systems:
         data[system] = load_transcriptions(system)
     keys = data[systems[0]].keys()
-    print(keys)
+    print(len(keys))
 
     hats = load_hats()
 
-    # choose a random element from systems
-    import random
-    random_val = random.random(systems)
+    for i in range(20000):
+        random_system = random.choice(systems)
+        
 
