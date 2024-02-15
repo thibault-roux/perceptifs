@@ -46,10 +46,11 @@ if __name__ == "__main__":
     hats = load_hats()
 
     MAX_LEN = 20
+    dataset_size = 20000 # start to get long
 
     new_dataset = []
-    progress = progressbar.ProgressBar()
-    for i in range(20000):
+    progress = progressbar.ProgressBar(maxval=dataset_size)
+    for i in range(dataset_size):
         progress.update(i)
         random_system1 = random.choice(systems)
         random_system2 = random_system1
