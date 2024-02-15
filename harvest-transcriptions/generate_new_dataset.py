@@ -1,4 +1,8 @@
 import random
+import progressbar
+
+def remove_eps(sentence):
+    return " ".join([word for word in sentence.split() if word != "<eps>"])
 
 def load_transcriptions(system):
     id2refhyp = dict()
@@ -9,8 +13,8 @@ def load_transcriptions(system):
                 continue
             line = line.split("\t")
             id = line[0]
-            ref = line[1]
-            hyp = line[2]
+            ref = remove_eps(line[1])
+            hyp = remove_eps(line[2])
             id2refhyp[id] = (ref, hyp)
     return id2refhyp
 
@@ -28,6 +32,8 @@ def load_hats():
     return list(hats)
 
 
+
+
 # the objective is to produce a dataset containing triplets not present in HATS
 if __name__ == "__main__":
     systems = ["KD_woR", "KD_wR", "SB_bpe1000", "SB_bpe750", "SB_s2s", "SB_w2v_1k", "SB_w2v_3k", "SB_w2v_7k", "SB_xlsr_fr", "SB_xlsr"]
@@ -36,11 +42,35 @@ if __name__ == "__main__":
     for system in systems:
         data[system] = load_transcriptions(system)
     keys = data[systems[0]].keys()
-    print(len(keys))
 
     hats = load_hats()
 
+    new_dataset = []
     for i in range(20000):
-        random_system = random.choice(systems)
+        random_system1 = random.choice(systems)
+        random_system2 = random_system1
+        while random_system2 == random_system1:
+            random_system2 = random.choice(systems)
+        # data[random_system1] # dictionary of id2refhyp
+        flag = True
+        while flag:
+            flag = False
+            random_id = random.choice(list(keys))
+            ref, hyp1 = data[random_system1][random_id]
+            _, hyp2 = data[random_system2][random_id]
         
-
+            if (ref, hyp1, hyp2) in hats or (ref, hyp2, hyp1) in hats:
+                flag = True
+            elif hyp1 == hyp2:
+                flag = True
+            elif ref == hyp1 or ref == hyp2:
+                flag = True
+            elif (ref, hyp1, hyp2) in new_dataset or (ref, hyp2, hyp1) in new_dataset:
+                flag = True
+        new_dataset.append((ref, hyp1, hyp2))
+        
+    with open("new_dataset.txt", "w") as f:
+        for ref, hyp1, hyp2 in new_dataset:
+            f.write(ref + "\t" + hyp1 + "\t" + hyp2 + "\n")
+    print("done")
+    
