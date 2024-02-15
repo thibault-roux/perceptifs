@@ -45,8 +45,12 @@ if __name__ == "__main__":
 
     hats = load_hats()
 
+    MAX_LEN = 20
+
     new_dataset = []
+    progress = progressbar.ProgressBar()
     for i in range(20000):
+        progress.update(i)
         random_system1 = random.choice(systems)
         random_system2 = random_system1
         while random_system2 == random_system1:
@@ -66,6 +70,8 @@ if __name__ == "__main__":
             elif ref == hyp1 or ref == hyp2:
                 flag = True
             elif (ref, hyp1, hyp2) in new_dataset or (ref, hyp2, hyp1) in new_dataset:
+                flag = True
+            elif len(ref.split(" ")) > MAX_LEN or len(hyp1.split(" ")) > MAX_LEN or len(hyp2.split(" ")) > MAX_LEN:
                 flag = True
         new_dataset.append((ref, hyp1, hyp2))
         
