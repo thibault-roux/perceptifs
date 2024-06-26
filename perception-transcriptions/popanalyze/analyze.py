@@ -58,8 +58,8 @@ def average_agreement(num_dataset):
         for num_human2, answers2 in human2answers.items():
             if num_human1 != num_human2:
                 # compare answers
-                for k in range(1, 50):
-                    k = str(k)
+                for k, _ in answers1.items():
+                    # k = str(k)
                     # print("answers1[k]:", answers1[k], " & answers2[k]:", answers2[k])
                     if answers1[k] == answers2[k]:
                         scores[num_human1]["agreement"] += 1
