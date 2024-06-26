@@ -43,23 +43,34 @@ def get_answers(i, j):
         return None
 
 def average_agreement(num_dataset):
-    human2answers = dict()
+    human2answers = dict() # key: human number, value: answers
+    scores = dict() # key: num_human, value: dict(agreement with other humans, disagremment with other humans)
     for num_human in range(8):
+        scores[num_human] = dict()
+        scores[num_human]["agreement"] = 0
+        scores[num_human]["disagreement"] = 0
         # get answers from json
         answers = get_answers(num_dataset, num_human)
         if answers is not None:
             human2answers[num_human] = answers
-            print(answers)
-            exit()
 
     for num_human1, answers1 in human2answers.items():
         for num_human2, answers2 in human2answers.items():
             if num_human1 != num_human2:
                 # compare answers
-                for k in range(50):
+                for k in range(1, 50):
+                    k = str(k)
+                    # print("answers1[k]:", answers1[k], " & answers2[k]:", answers2[k])
                     if answers1[k] == answers2[k]:
-                        agreement[k] += 1
-    
+                        scores[num_human1]["agreement"] += 1
+                    else:
+                        scores[num_human1]["disagreement"] += 1
+
+    for num_human, _ in human2answers.items():
+        a = scores[num_human]["agreement"]
+        d = scores[num_human]["disagreement"]
+        print(f"human {num_human} has {a} agreements and {d} disagreements, which is {a/(a+d)*100}% agreement")
+    print()
 
 if __name__ == "__main__":
     for num_dataset in range(20):
