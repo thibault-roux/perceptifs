@@ -39,7 +39,7 @@ def get_feature(i, j, feature_name):
     try:
         with open(f"./data/min_{i}-{j}.json") as f:
             data = json.load(f)
-        data[feature_name].lower()
+        return data[feature_name].lower()
     except FileNotFoundError:
         return None
 
@@ -56,5 +56,6 @@ def view(feature_name):
         print(f"{feature}: {features.count(feature)}")
 
 if __name__ == "__main__":
-    feature_name="language"
+    feature_name="age" # language
     view(feature_name)
+    
