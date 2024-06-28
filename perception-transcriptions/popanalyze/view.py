@@ -29,25 +29,26 @@
 #		 "answers": {"1":"B","2":"B","3":"B","4":"B","5":"B","6":"A","7":"B","8":"A","9":"B","10":"B","11":"B","12":"B","13":"A","14":"A","15":"B","16":"A","17":"B","18":"B","19":"B","20":"B","21":"B","22":"B","23":"A","24":"B","25":"A","26":"A","27":"B","28":"A","29":"A","30":"A","31":"A","32":"A","33":"B","34":"A","35":"A","36":"B","37":"B","38":"A","39":"A","40":"A","41":"A","42":"A","43":"A","44":"B","45":"B","46":"A","47":"A","48":"B","49":"B","50":"A"}}
 
 
-
+import jiwer
 import json
 
 
 
-def get_feature(i, j, feature):
+
+def get_feature(i, j, feature_name):
     try:
         with open(f"./data/min_{i}-{j}.json") as f:
             data = json.load(f)
-        return data[feature]
+        data[feature_name].lower()
     except FileNotFoundError:
         return None
 
-def view(feature):
+def view(feature_name):
     features = []
     for num_dataset in range(20):
         for num_human in range(8):
             # get feature from json
-            feature = get_feature(num_dataset, num_human, feature)
+            feature = get_feature(num_dataset, num_human, feature_name)
             if feature is not None:
                 features.append(feature)
     # print occurence of each unique feature
@@ -55,5 +56,5 @@ def view(feature):
         print(f"{feature}: {features.count(feature)}")
 
 if __name__ == "__main__":
-    feature="language"
-    view(feature)
+    feature_name="language"
+    view(feature_name)
