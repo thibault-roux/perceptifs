@@ -38,38 +38,49 @@ def get_answers(i, j):
     try:
         with open(f"./data/min_{i}-{j}.json") as f:
             data = json.load(f)
-        return data["name"]
+        return str(data["name"])
     except FileNotFoundError:
         return None
 
 
-def annotate(feature_name):
+def annotate():
     annotations = load_annotations()
     for num_dataset in range(20):
         for num_human in range(8):
             # annotate
             name = get_answers(num_dataset, num_human)
-            inp = input("Male or female? (M/F/STOP)")
-            if inp == "STOP" or inp != "M" or inp != "F":
+            if name in annotations or name is None:
+                print(name, "skipped.")
+                continue
+            inp = input("Male or female? (M/F/X/STOP) ")
+            if inp == "STOP" or (inp != "M" and inp != "F" and inp != "X"):
                 save_annotations(annotations)
                 exit()
-            annotations.append(f"{name}: {inp}")
+            annotations[name] = inp
     save_annotations(annotations)
     
 
 def load_annotations():
-    annotations = []
+    print("Load annotations...")
+    annotations = dict()
     try:
         with open("annotation.txt", "r", encoding="utf8") as f:
             for line in f:
-                annotations.append(line[:-1])
+                name, annotation = line[:-1].split(" : ")
+                annotations[name] = annotation
+    except FileNotFoundError:
+        print("No annotations.")
+        return annotations
+    print("Annotations loaded.")
     return annotations
 
 def save_annotations(annotations):
+    print("Saving...")
     # save annotations
     with open("annotation.txt", "w", encoding="utf8") as f:
-        for annotation in annotations:
-            f.write(annotation + "\n")
+        for name, annotation in annotations.items():
+            f.write(str(name) + " : " + str(annotation) + "\n")
+    print("Saved.")
 
 if __name__ == "__main__":
     annotate()
