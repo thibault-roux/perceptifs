@@ -32,14 +32,14 @@
 import jiwer
 import json
 
-
+import matplotlib.pyplot as plt
 
 
 def get_feature(i, j, feature_name):
     try:
         with open(f"./data/min_{i}-{j}.json") as f:
             data = json.load(f)
-        return data[feature_name].lower()
+        return int(data[feature_name].lower())
     except FileNotFoundError:
         return None
 
@@ -54,6 +54,81 @@ def view(feature_name):
     # print occurence of each unique feature
     for feature in set(features):
         print(f"{feature}: {features.count(feature)}")
+
+    # histogram of feature
+    plt.hist(features, bins=20, color='#d5e8d4', edgecolor='#82b366') #, bins=len(set(features)))
+    plt.xlabel(feature_name)
+    plt.ylabel("Occurence")
+    plt.title(f"Histogram of {feature_name}")
+    plt.show()
+    # save histogram
+    plt.savefig(f"./data/histogram_{feature_name}.png")
+
+    plot(features)
+
+
+
+def plot(x):
+
+    n_bins = 20
+
+    legend = ['distribution']
+
+    # Creating histogram
+    fig, axs = plt.subplots(1, 1,
+                            figsize =(10, 7), 
+                            tight_layout = True)
+
+
+    # Remove axes splines 
+    for s in ['top', 'bottom', 'left', 'right']: 
+        axs.spines[s].set_visible(False) 
+
+    # Remove x, y ticks
+    axs.xaxis.set_ticks_position('none') 
+    axs.yaxis.set_ticks_position('none') 
+
+    # Add padding between axes and labels 
+    axs.xaxis.set_tick_params(pad = 5) 
+    axs.yaxis.set_tick_params(pad = 10) 
+
+    # Add x, y gridlines 
+    axs.grid(b = True, color ='grey', 
+            linestyle ='-.', linewidth = 0.5, 
+            alpha = 0.6) 
+
+    # Add Text watermark 
+    fig.text(0.9, 0.15, 'Jeeteshgavande30', 
+            fontsize = 12, 
+            color ='red',
+            ha ='right',
+            va ='bottom', 
+            alpha = 0.7) 
+
+    # Creating histogram
+    N, bins, patches = axs.hist(x, bins = n_bins)
+
+    # Setting color
+    fracs = ((N**(1 / 5)) / N.max())
+    norm = colors.Normalize(fracs.min(), fracs.max())
+
+    for thisfrac, thispatch in zip(fracs, patches):
+        color = plt.cm.viridis(norm(thisfrac))
+        thispatch.set_facecolor(color)
+
+    # Adding extra features 
+    plt.xlabel("X-axis")
+    plt.ylabel("y-axis")
+    plt.legend(legend)
+    plt.title('Customized histogram')
+
+    # Show plot
+    plt.show()
+    plt.savefig(f"./histogram_temp.png")
+
+
+
+
 
 if __name__ == "__main__":
     feature_name="age" # language
