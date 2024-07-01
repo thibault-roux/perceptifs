@@ -66,12 +66,24 @@ def average_agreement(num_dataset):
                     else:
                         scores[num_human1]["disagreement"] += 1
 
+    local_a = 0
+    local_d = 0
     for num_human, _ in human2answers.items():
         a = scores[num_human]["agreement"]
         d = scores[num_human]["disagreement"]
         print(f"human {num_human} has {a} agreements and {d} disagreements, which is {a/(a+d)*100}% agreement")
-    print()
+        local_a += a
+        local_d += d
+    return local_a, local_d
 
 if __name__ == "__main__":
+    total_a = 0
+    total_d = 0
     for num_dataset in range(20):
-       data = average_agreement(num_dataset)
+       local_a, local_d = average_agreement(num_dataset)
+       total_a += local_a
+       total_d += local_d
+       print()
+
+    print()
+    print(f"Total agreement: {total_a} & total disagreement: {total_d}, which is {total_a/(total_a+total_d)*100}% agreement")

@@ -64,7 +64,7 @@ def view(feature_name):
     plt.title(f"Histogramme des {feature2clean[feature_name].lower()}s")
     plt.show()
     # save histogram
-    plt.savefig(f"./data/histogram_{feature_name}.png")
+    plt.savefig(f"./data/histogram_{feature_name}.pdf")
 
     print("Plot saved.")
 

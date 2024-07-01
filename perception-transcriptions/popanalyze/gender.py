@@ -52,6 +52,7 @@ def annotate():
             if name in annotations or name is None:
                 print(name, "skipped.")
                 continue
+            print(name)
             inp = input("Male or female? (M/F/X/STOP) ")
             if inp == "STOP" or (inp != "M" and inp != "F" and inp != "X"):
                 save_annotations(annotations)
@@ -82,5 +83,13 @@ def save_annotations(annotations):
             f.write(str(name) + " : " + str(annotation) + "\n")
     print("Saved.")
 
+def stats():
+    annotations = load_annotations()
+    count = {"M": 0, "F": 0, "X": 0}
+    for annotation in annotations.values():
+        count[annotation] += 1
+    print(count)
+
 if __name__ == "__main__":
     annotate()
+    stats()
