@@ -56,15 +56,17 @@ def view(feature_name):
         print(f"{feature}: {features.count(feature)}")
 
     # histogram of feature
+    feature2clean = {"age": "Âge"}
     plt.hist(features, bins=20, color='#d5e8d4', edgecolor='#82b366') #, bins=len(set(features)))
-    plt.xlabel(feature_name)
+    plt.xlabel(feature2clean[feature_name])
     plt.ylabel("Occurence")
 
-    feature2clean = {"age": "Âge", "language": "Language", "nbOfLanguages": "Number of languages", "educationLevel": "Education level"}
-    plt.title(f"Histogram of {feature2clean[feature_name]}")
+    plt.title(f"Histogramme des {feature2clean[feature_name].lower()}s")
     plt.show()
     # save histogram
     plt.savefig(f"./data/histogram_{feature_name}.png")
+
+    print("Plot saved.")
 
 
 
