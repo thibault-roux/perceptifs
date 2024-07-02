@@ -110,28 +110,19 @@ def plot(data):
     import random
     from collections import Counter
     for i, scores in enumerate(data):
-        # # move the scatter a bit with a random value
-        # x = [i+1]*len(scores)
-        # x_mover = [random.uniform(-0.2, 0.2) for _ in range(len(scores))]
-        # x = [x[j] + x_mover[j] for j in range(len(scores))]
-        # # weight to make bigger point for points that have the same values
-        # weights = [Counter(scores)[score] for score in scores]
-        # plt.scatter(x, scores, edgecolor=edgecolors[i], c=colors[i], alpha=1, s=[w*50 for w in weights])
-        # # now the same thing without plotting two times the same dot
-        print("\n", scores, end="\n\t")
         for score in set(scores):
             # print(score, end=", ")
             x = i+1 # + random.uniform(-0.2, 0.2)
-            plt.scatter(x, score, edgecolor=edgecolors[i], c=colors[i], alpha=1, s=50*scores.count(score))
+            plt.scatter(x, score, edgecolor=edgecolors[i], c=colors[i], alpha=1, s=100*scores.count(score))
 
-    plt.xlabel('Jeux de données')
-    plt.ylabel('Scores')
-    plt.title('Scatter Plot des scores')
+    plt.xlabel('Sous-ensemble de données annotées')
+    plt.ylabel('Ratio')
     plt.xticks(range(1, 21,2))
+    plt.gca().set_yticklabels([f'{x:.0%}' for x in plt.gca().get_yticks()]) 
     plt.show()
 
 
-    plt.savefig("data/boxplot.png")
+    plt.savefig("data/figure-ratio.png")
 
 
 if __name__ == "__main__":
