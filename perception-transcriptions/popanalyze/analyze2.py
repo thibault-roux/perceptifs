@@ -32,6 +32,8 @@
 
 import json
 
+import matplotlib.pyplot as plt
+
 
 
 def get_answers(i, j):
@@ -39,6 +41,14 @@ def get_answers(i, j):
         with open(f"./data/min_{i}-{j}.json") as f:
             data = json.load(f)
         return data["answers"]
+    except FileNotFoundError:
+        return None
+
+def get_name(i, j):
+    try:
+        with open(f"./data/min_{i}-{j}.json") as f:
+            data = json.load(f)
+        return data["name"]
     except FileNotFoundError:
         return None
 
@@ -62,7 +72,8 @@ def agreement_with_majority(num_dataset): # compute the number of times each hum
             count_A = 0
             count_B = 0
             for num_human2, answers2 in human2answers.items():
-                if num_human != num_human2:
+                # if num_human != num_human2:
+                if True:
                     if answers2[k] == "A":
                         count_A += 1
                     elif answers2[k] == "B":
@@ -77,14 +88,58 @@ def agreement_with_majority(num_dataset): # compute the number of times each hum
                 scores[num_human]["disagreement"] += 1
 
     # print scores
-    print(f"Dataset {num_dataset}")
+    # print(f"Dataset {num_dataset}")
+    ratios = []
     for num_human, score in scores.items():
-        print(f"Human {num_human}: agreement = {score['agreement']}, disagreement = {score['disagreement']}")
+        # print(f"Human {num_human}: ratio = {score['agreement']/(score['agreement']+score['disagreement'])} (agree: {score['agreement']}, disagree: {score['disagreement']})")
+        ratio = score['agreement']/(score['agreement']+score['disagreement'])
+        ratios.append(ratio)
 
-    exit()
-                
-    return scores
+    # local average
+    # print("Local", num_dataset, "average ratio:", sum(ratios)/len(ratios))
+    return ratios
+
+flag = False
+
+def plot(data):
+    # colors = ["#bleu", "#vert", "#orange", "#jaune", "#rouge", "#violet", "#turquoise"]*3 # "#gris_clair", "#gris_bleuté", "#blanc"
+    colors = ["#dae8fc", "#d5e8d4", "#ffe6cc", "#fff2cc", "#f8cecc", "#e1d5e7", "#b0e3e6"]*3 # "#f5f5f5", "#bac8d3", "#ffffff"
+    edgecolors = ["#6c8ebf", "#82b366", "#d79b00", "#d6b656", "#b85450", "#9673a6", "#0e8088"]*3 # "#666666", "#23445d", "#000000"
+
+
+    import random
+    from collections import Counter
+    for i, scores in enumerate(data):
+        # # move the scatter a bit with a random value
+        # x = [i+1]*len(scores)
+        # x_mover = [random.uniform(-0.2, 0.2) for _ in range(len(scores))]
+        # x = [x[j] + x_mover[j] for j in range(len(scores))]
+        # # weight to make bigger point for points that have the same values
+        # weights = [Counter(scores)[score] for score in scores]
+        # plt.scatter(x, scores, edgecolor=edgecolors[i], c=colors[i], alpha=1, s=[w*50 for w in weights])
+        # # now the same thing without plotting two times the same dot
+        print("\n", scores, end="\n\t")
+        for score in set(scores):
+            # print(score, end=", ")
+            x = i+1 # + random.uniform(-0.2, 0.2)
+            plt.scatter(x, score, edgecolor=edgecolors[i], c=colors[i], alpha=1, s=50*scores.count(score))
+
+    plt.xlabel('Jeux de données')
+    plt.ylabel('Scores')
+    plt.title('Scatter Plot des scores')
+    plt.xticks(range(1, 21,2))
+    plt.show()
+
+
+    plt.savefig("data/boxplot.png")
+
 
 if __name__ == "__main__":
+    global_ratios = []
     for num_dataset in range(20):
-       scores = agreement_with_majority(num_dataset)
+       ratios = agreement_with_majority(num_dataset)
+       global_ratios.append(ratios) # list of lists
+
+    print("Average ratio:", sum([sum(ratios) for ratios in global_ratios])/sum([len(ratios) for ratios in global_ratios]))
+
+    plot(global_ratios)
