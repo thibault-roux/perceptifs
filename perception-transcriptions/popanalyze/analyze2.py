@@ -45,14 +45,14 @@ def get_answers(i, j):
 def agreement_with_majority(num_dataset): # compute the number of times each human agree with most of the other humans
     human2answers = dict() # key: human number, value: answers
     scores = dict() # key: num_human, value: dict(agreement with majority, disagremment with majority)
-    for num_human in range(8):
-        scores[num_human] = dict()
-        scores[num_human]["agreement"] = 0
-        scores[num_human]["disagreement"] = 0
+    for num_human in range(1, 9):
         # get answers from json
         answers = get_answers(num_dataset, num_human)
         if answers is not None:
             human2answers[num_human] = answers
+            scores[num_human] = dict()
+            scores[num_human]["agreement"] = 0
+            scores[num_human]["disagreement"] = 0
         
     # for each human
     for num_human, answers in human2answers.items():

@@ -46,13 +46,13 @@ def average_agreement(num_dataset):
     human2answers = dict() # key: human number, value: answers
     scores = dict() # key: num_human, value: dict(agreement with other humans, disagremment with other humans)
     for num_human in range(8):
-        scores[num_human] = dict()
-        scores[num_human]["agreement"] = 0
-        scores[num_human]["disagreement"] = 0
         # get answers from json
         answers = get_answers(num_dataset, num_human)
         if answers is not None:
             human2answers[num_human] = answers
+            scores[num_human] = dict()
+            scores[num_human]["agreement"] = 0
+            scores[num_human]["disagreement"] = 0
 
     for num_human1, answers1 in human2answers.items():
         for num_human2, answers2 in human2answers.items():
