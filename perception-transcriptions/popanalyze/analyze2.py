@@ -75,50 +75,16 @@ def agreement_with_majority(num_dataset): # compute the number of times each hum
                 scores[num_human]["agreement"] += 1
             else:
                 scores[num_human]["disagreement"] += 1
+
+    # print scores
+    print(f"Dataset {num_dataset}")
+    for num_human, score in scores.items():
+        print(f"Human {num_human}: agreement = {score['agreement']}, disagreement = {score['disagreement']}")
+
+    exit()
                 
-
-def average_agreement(num_dataset):
-    human2answers = dict() # key: human number, value: answers
-    scores = dict() # key: num_human, value: dict(agreement with other humans, disagremment with other humans)
-    for num_human in range(8):
-        scores[num_human] = dict()
-        scores[num_human]["agreement"] = 0
-        scores[num_human]["disagreement"] = 0
-        # get answers from json
-        answers = get_answers(num_dataset, num_human)
-        if answers is not None:
-            human2answers[num_human] = answers
-
-    for num_human1, answers1 in human2answers.items():
-        for num_human2, answers2 in human2answers.items():
-            if num_human1 != num_human2:
-                # compare answers 
-                for k, _ in answers1.items():
-                    # k = str(k)
-                    # print("answers1[k]:", answers1[k], " & answers2[k]:", answers2[k])
-                    if answers1[k] == answers2[k]:
-                        scores[num_human1]["agreement"] += 1
-                    else:
-                        scores[num_human1]["disagreement"] += 1
-
-    local_a = 0
-    local_d = 0
-    for num_human, _ in human2answers.items():
-        a = scores[num_human]["agreement"]
-        d = scores[num_human]["disagreement"]
-        print(f"human {num_human} has {a} agreements and {d} disagreements, which is {a/(a+d)*100}% agreement")
-        local_a += a
-        local_d += d
-    return local_a, local_d
+    return scores
 
 if __name__ == "__main__":
-    total_a = 0
-    total_d = 0
     for num_dataset in range(20):
-       local_a, local_d = average_agreement(num_dataset)
-       total_a += local_a
-       total_d += local_d
-       print()
-
-    print()
-    print(f"Total agreement: {total_a} & total disagreement: {total_d}, which is {total_a/(total_a+total_d)*100}% agreement")
+       scores = agreement_with_majority(num_dataset)
