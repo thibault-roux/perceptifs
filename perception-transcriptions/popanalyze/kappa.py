@@ -59,8 +59,15 @@ def get_choice():
         miniset = []
         for num_human in range(1, 9):
             answers = get_answers(num_dataset, num_human)
-            miniset.append([1 if answers[str(i)] == "A" else 0 for i in range(1, 51)])
-        data.append(miniset)
+            if answers is not None:
+                try:
+                    miniset.append([1 if answers[key] == "A" else 0 for key, value in answers.items()])
+                except KeyError:
+                    print("answers:", answers)
+                    print("num_dataset:", num_dataset)
+                    print("num_human:", num_human)
+                    exit()
+            data.append(miniset)
     return data
 
 
@@ -126,8 +133,17 @@ def prepare_data_for_kappa(data):
 if __name__ == "__main__":
     data = get_choice()
 
-    count_data = prepare_data_for_kappa(data)
-    print(count_data)
-    kappa = fleiss_kappa(count_data, method='fleiss')
+    
+    # compute a fleiss's kappa per set
+    kappas = []
+    for i in range(20):
+        count_data = prepare_data_for_kappa([data[i]])
+        kappas.append(fleiss_kappa(count_data, method='fleiss'))
+    print("Kappas:", kappas)
+    print("Average kappa:", sum(kappas)/len(kappas))
 
-    print("Kappa de Fleiss:", kappa)
+    # count_data = prepare_data_for_kappa(data)
+    # print(count_data)
+    # kappa = fleiss_kappa(count_data, method='fleiss')
+
+    # print("Kappa de Fleiss:", kappa)
