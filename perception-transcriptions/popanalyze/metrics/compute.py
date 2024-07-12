@@ -44,33 +44,9 @@ def phoner(ref, hyp, model):
 
 
 def eval(metric):
-    # load metric
-    if metric == "wer":
-        import jiwer
-        model = None
-        metric_function = wer
-    elif metric == "cer":
-        import jiwer
-        model = None
-        metric_function = cer
-    elif metric == "semdist":
-        from sentence_transformers import SentenceTransformer
-        from sklearn.metrics.pairwise import cosine_similarity
-        # load sentence camembert
-        model = SentenceTransformer('dangvantuan/sentence-camembert-large')
-        metric_function = semdist
-    elif metric == "phoner":
-        from jiwer import cer
-        import epitran
-        model = epitran.Epitran("fra-Latn")
-        metric_function = phoner
-    else:
-        raise ValueError("Metric not implemented:", metric)
-
-
     metric_choices = dict()
     for i in range(20):
-        metric_choices[i] = dict
+        metric_choices[i] = dict()
         for j in range(i*50+1, i*50+51):
             ref = data[f"min_{i}"][str(j)]["reference"]
             hyp_A = data[f"min_{i}"][str(j)]["hypotheses"]["A"]
@@ -94,6 +70,30 @@ if __name__ == "__main__":
     
     metrics = ["wer", "cer", "semdist", "phoner"]
 
-    for metric in metrics:
+    for metric in metrics:        
+        # load metric
+        if metric == "wer":
+            import jiwer
+            model = None
+            metric_function = wer
+        elif metric == "cer":
+            import jiwer
+            model = None
+            metric_function = cer
+        elif metric == "semdist":
+            from sentence_transformers import SentenceTransformer
+            from sklearn.metrics.pairwise import cosine_similarity
+            # load sentence camembert
+            model = SentenceTransformer('dangvantuan/sentence-camembert-large')
+            metric_function = semdist
+        elif metric == "phoner":
+            from jiwer import cer
+            import epitran
+            model = epitran.Epitran("fra-Latn")
+            metric_function = phoner
+        else:
+            raise ValueError("Metric not implemented:", metric)
+
+
         print(f"metric: {metric}")
         metric_choices = eval(metric)
