@@ -35,8 +35,8 @@ def wer(ref, hyp, model):
 def cer(ref, hyp, model):
     return jiwer.cer(ref, hyp)
 
-def semdist(ref, hyp, model):
-    return cosine_similarity(model.encode([ref]).reshape(1, -1), model.encode([hyp]).reshape(1, -1))
+def semdist(ref, hyp, model): # lower is better
+    return 1 - cosine_similarity(model.encode([ref]).reshape(1, -1), model.encode([hyp]).reshape(1, -1))
 
 def phoner(ref, hyp, model):
     return jiwer.cer(model.transliterate(ref), model.transliterate(hyp))
@@ -46,31 +46,54 @@ def phoner(ref, hyp, model):
 def eval(metric):
     # load metric
     if metric == "wer":
-        from jiwer import wer
+        import jiwer
+        model = None
+        metric_function = wer
     elif metric == "cer":
-        from jiwer import cer
+        import jiwer
+        model = None
+        metric_function = cer
     elif metric == "semdist":
         from sentence_transformers import SentenceTransformer
         from sklearn.metrics.pairwise import cosine_similarity
+        # load sentence camembert
+        model = SentenceTransformer('dangvantuan/sentence-camembert-large')
+        metric_function = semdist
     elif metric == "phoner":
         from jiwer import cer
         import epitran
         model = epitran.Epitran("fra-Latn")
+        metric_function = phoner
+    else:
+        raise ValueError("Metric not implemented:", metric)
 
 
+    metric_choices = dict()
     for i in range(20):
-        for j in range(1, 9):
-            exit()
+        metric_choices[i] = dict
+        for j in range(i*50+1, i*50+51):
+            ref = data[f"min_{i}"][str(j)]["reference"]
+            hyp_A = data[f"min_{i}"][str(j)]["hypotheses"]["A"]
+            hyp_B = data[f"min_{i}"][str(j)]["hypotheses"]["B"]
+
+            scoreA = metric_function(ref, hyp_A, model)
+            scoreB = metric_function(ref, hyp_B, model)
+            if scoreA < scoreB:
+                metric_choices[i][j] = "A"
+            elif scoreA > scoreB:
+                metric_choices[i][j] = "B"
+            else:
+                metric_choices[i][j] = "C"
+
+    return metric_choices
 
 
 if __name__ == "__main__":
     data = load()
-
-    print(data["min_0"]["1"])
 
     
     metrics = ["wer", "cer", "semdist", "phoner"]
 
     for metric in metrics:
         print(f"metric: {metric}")
-        eval(metric)
+        metric_choices = eval(metric)
