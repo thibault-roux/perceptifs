@@ -64,6 +64,14 @@ def eval(metric):
     return metric_choices
 
 
+def save(metric, metric_choices):
+    with open(metric + ".txt", "w", encoding="utf8") as f:
+        # metric_choices is a dict of dict
+        for i in metric_choices:
+            for j in metric_choices[i]:
+                f.write(f"{i} {j} {metric_choices[i][j]}\n")
+
+
 if __name__ == "__main__":
     data = load()
 
