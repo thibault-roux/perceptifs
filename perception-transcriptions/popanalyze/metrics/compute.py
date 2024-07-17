@@ -22,6 +22,7 @@
 """
 
 import json
+import progressbar
 
 def load(): # get the dict of id to reference and hypotheses A and B
     with open("../../experimentData.json") as f:
@@ -47,7 +48,13 @@ def eval(metric):
     metric_choices = dict()
     for i in range(20):
         metric_choices[i] = dict()
+        # progressbar for j
+        bar = progressbar.ProgressBar(max_value=50)
+        jbar = 0
         for j in range(i*50+1, i*50+51):
+            jbar += 1
+            bar.update(jbar)
+
             ref = data[f"min_{i}"][str(j)]["reference"]
             hyp_A = data[f"min_{i}"][str(j)]["hypotheses"]["A"]
             hyp_B = data[f"min_{i}"][str(j)]["hypotheses"]["B"]
@@ -105,3 +112,4 @@ if __name__ == "__main__":
 
         print(f"metric: {metric}")
         metric_choices = eval(metric)
+        save(metric, metric_choices)
