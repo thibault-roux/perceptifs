@@ -77,13 +77,39 @@ def get_metric_choice(metric):
     with open("./metrics/" + metric + ".txt", "r", encoding="utf8") as f:
         for line in f: # each line is in the format 0 1 B
             choice = line.split(" ")[2].strip()
-            miniset.append(choice)
+            if choice == "A":
+                miniset.append(1)
+            elif choice == "B":
+                miniset.append(0)
+            elif choice == "C":
+                miniset.append(2)
+            else:
+                print("ERROR. choice =", choice)
+                exit()
             if len(miniset) == 50:
                 metric_data.append(miniset)
                 miniset = []
     return metric_data
 
 
+def compute_correlation(data, metric_data):
+    # compute correlation between data and metric_data
+    # data is a list of 20 minisets, each miniset contains 8 humans, each human has 50 choices
+    # metric_data is a list of 20 minisets, each miniset contains 50 choices
+
+    agree = 0
+    disagree = 0
+    for i in range(len(data)):
+        for num_human in range(len(data[i])):
+            for j in range(len(data[i][num_human])):
+                # should add a filter here
+                human_choice = data[i][num_human][j]
+                metric_choice = metric_data[i][j]
+                if human_choice == metric_choice:
+                    agree += 1
+                else:
+                    disagree += 1
+    return agree / (agree + disagree)
 
 
 
@@ -91,3 +117,6 @@ if __name__ == "__main__":
     data = get_human_choice()
 
     metric_data = get_metric_choice("semdist")
+
+    agreement = compute_correlation(data, metric_data)
+    print("agreement:", agreement)
