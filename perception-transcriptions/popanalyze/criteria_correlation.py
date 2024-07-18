@@ -95,19 +95,19 @@ def get_metric_choice(metric):
 def filter_criteria(i, num_human, filt):
     if filt == "nofilter":
         return False
-    elif filt == "gender":
+    elif filt[:6] == "gender":
         # not implement error
         raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
-    elif filt == "lang":
+    elif filt[:4] == "lang":
         raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
-    elif filt == "nbrlang":
+    elif filt[:7] == "nbrlang":
         raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
-    elif filt == "studies":
+    elif filt[:7] == "studies":
         raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
-    elif filt == "age":
+    elif filt[:3] == "age":
         raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
     else:
-        print("ERROR. filter =", filt)
+        raise NotImplementedError("ERROR. Filter '" + filt + "' does not exist.")
         exit()
     criteria = get_criteria(i, num_human, f)
 
@@ -140,7 +140,11 @@ if __name__ == "__main__":
     human_data = get_human_choice()
     
     metrics = ["wer", "cer", "semdist", "phoner"]
-    filters = ["gender", "lang", "nbrlang", "studies", "age"]
+    filters = ["gender-male", "gender-female", 
+                "lang-fr", "lang-others", 
+                "nbrlang-1", "nbrlang-2", "nbrlang-3", "nbrlang-4",
+                "studies-0-2", "studies-3-4", "studies-5-7", "studies-8-15", 
+                "age-0-30", "age-31-50", "age-51-99"]
     for metric in metrics:
         metric_data = get_metric_choice("semdist")
         for filt in filters:
