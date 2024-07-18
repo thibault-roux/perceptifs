@@ -107,7 +107,13 @@ def filter_criteria(i, num_human, filt):
         else:
             raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
     elif filt[:7] == "nbrlang":
-        raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
+        target = int(filt[8:])
+        if target >= 4:
+            return int(get_criteria(i, num_human, "nbOfLanguages")) >= 4
+        elif target >= 0:
+            return int(get_criteria(i, num_human, "nbOfLanguages")) == target
+        else:
+            raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
     elif filt[:7] == "studies":
         raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
     elif filt[:3] == "age":
@@ -129,7 +135,7 @@ def compute_correlation(human_data, metric_data, filt):
     for i in range(len(human_data)):
         for num_human in range(len(human_data[i])):
             # should add a filter here
-            if filter_criteria(i, num_human, filt):
+            if filter_criteria(i, num_human+1, filt):
                 continue
             for j in range(len(human_data[i][num_human])):
                 human_choice = human_data[i][num_human][j]
@@ -146,15 +152,15 @@ if __name__ == "__main__":
     human_data = get_human_choice()
     
     metrics = ["wer", "cer", "semdist", "phoner"]
-    filters = ["gender-male", "gender-female", 
-                "lang-fr", "lang-others", 
+    filters = ["gender-male", "gender-female",
+                "lang-fr", "lang-others",
                 "nbrlang-1", "nbrlang-2", "nbrlang-3", "nbrlang-4",
-                "studies-0-2", "studies-3-4", "studies-5-7", "studies-8-15", 
+                "studies-0-2", "studies-3-4", "studies-5-7", "studies-8-15",
                 "age-0-30", "age-31-50", "age-51-99"]
 
 
     metrics = ["semdist"]
-    filters = ["lang-fr", "lang-others"]
+    filters = ["nbrlang-1", "nbrlang-2", "nbrlang-3", "nbrlang-4"]
     for metric in metrics:
         metric_data = get_metric_choice(metric)
         for filt in filters:
