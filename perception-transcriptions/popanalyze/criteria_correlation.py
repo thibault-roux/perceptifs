@@ -99,7 +99,13 @@ def filter_criteria(i, num_human, filt):
         # not implement error
         raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
     elif filt[:4] == "lang":
-        raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
+        target = filt[5:]
+        if target == "others":
+            return get_criteria(i, num_human, "language") != "Français"
+        elif target == "fr":
+            return get_criteria(i, num_human, "language") == "Français"
+        else:
+            raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
     elif filt[:7] == "nbrlang":
         raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
     elif filt[:7] == "studies":
@@ -145,8 +151,12 @@ if __name__ == "__main__":
                 "nbrlang-1", "nbrlang-2", "nbrlang-3", "nbrlang-4",
                 "studies-0-2", "studies-3-4", "studies-5-7", "studies-8-15", 
                 "age-0-30", "age-31-50", "age-51-99"]
+
+
+    metrics = ["semdist"]
+    filters = ["lang-fr", "lang-others"]
     for metric in metrics:
-        metric_data = get_metric_choice("semdist")
+        metric_data = get_metric_choice(metric)
         for filt in filters:
             agreement, total = compute_correlation(human_data, metric_data, filt)
-    print("agreement:", agreement)
+            print(metric, filt, agreement)
