@@ -67,7 +67,7 @@ def get_human_choice():
                     print("num_dataset:", num_dataset)
                     print("num_human:", num_human)
                     exit()
-            data.append(miniset)
+        data.append(miniset)
     return data
 
 
@@ -92,19 +92,28 @@ def get_metric_choice(metric):
     return metric_data
 
 
-def compute_correlation(data, metric_data):
+def compute_correlation(human_data, metric_data):
     # compute correlation between data and metric_data
     # data is a list of 20 minisets, each miniset contains 8 humans, each human has 50 choices
     # metric_data is a list of 20 minisets, each miniset contains 50 choices
 
     agree = 0
     disagree = 0
-    for i in range(len(data)):
-        for num_human in range(len(data[i])):
-            for j in range(len(data[i][num_human])):
+    for i in range(len(human_data)):
+        for num_human in range(len(human_data[i])):
+            for j in range(len(human_data[i][num_human])):
                 # should add a filter here
-                human_choice = data[i][num_human][j]
-                metric_choice = metric_data[i][j]
+                human_choice = human_data[i][num_human][j]
+                try:
+                    metric_choice = metric_data[i][j]
+                except:
+                    print("i:", i)
+                    print("j:", j)
+                    print("len(metric_data):", len(metric_data))
+                    print("len(human_data):", len(human_data))
+                    input()
+                    print("len(metric_data[i]):", len(metric_data[i]))
+                    exit()
                 if human_choice == metric_choice:
                     agree += 1
                 else:
@@ -114,9 +123,8 @@ def compute_correlation(data, metric_data):
 
 
 if __name__ == "__main__":
-    data = get_human_choice()
-
+    human_data = get_human_choice()
     metric_data = get_metric_choice("semdist")
 
-    agreement = compute_correlation(data, metric_data)
+    agreement = compute_correlation(human_data, metric_data)
     print("agreement:", agreement)
