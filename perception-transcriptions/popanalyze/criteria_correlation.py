@@ -92,7 +92,28 @@ def get_metric_choice(metric):
     return metric_data
 
 
-def compute_correlation(human_data, metric_data, f): # f = filter
+def filter_criteria(i, num_human, filt):
+    if filt == "nofilter":
+        return False
+    elif filt == "gender":
+        # not implement error
+        raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
+    elif filt == "lang":
+        raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
+    elif filt == "nbrlang":
+        raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
+    elif filt == "studies":
+        raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
+    elif filt == "age":
+        raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
+    else:
+        print("ERROR. filter =", filt)
+        exit()
+    criteria = get_criteria(i, num_human, f)
+
+
+
+def compute_correlation(human_data, metric_data, filt):
     # compute correlation between data and metric_data
     # data is a list of 20 minisets, each miniset contains 8 humans, each human has 50 choices
     # metric_data is a list of 20 minisets, each miniset contains 50 choices
@@ -101,8 +122,10 @@ def compute_correlation(human_data, metric_data, f): # f = filter
     disagree = 0
     for i in range(len(human_data)):
         for num_human in range(len(human_data[i])):
+            # should add a filter here
+            if filter_criteria(i, num_human, filt):
+                continue
             for j in range(len(human_data[i][num_human])):
-                # should add a filter here
                 human_choice = human_data[i][num_human][j]
                 metric_choice = metric_data[i][j]
                 if human_choice == metric_choice:
@@ -120,6 +143,6 @@ if __name__ == "__main__":
     filters = ["gender", "lang", "nbrlang", "studies", "age"]
     for metric in metrics:
         metric_data = get_metric_choice("semdist")
-        for f in filters:
-            agreement, total = compute_correlation(human_data, metric_data, f)
+        for filt in filters:
+            agreement, total = compute_correlation(human_data, metric_data, filt)
     print("agreement:", agreement)
