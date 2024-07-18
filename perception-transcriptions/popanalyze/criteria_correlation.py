@@ -121,9 +121,13 @@ def filter_criteria(i, num_human, filt):
             return False
         else:
             return True
-        raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
     elif filt[:3] == "age":
-        raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
+        target = filt[4:]
+        first_year, last_year = target.split("-")
+        if int(first_year) <= int(get_criteria(i, num_human, "age")) < int(last_year):
+            return False
+        else:
+            return True
     else:
         raise NotImplementedError("ERROR. Filter '" + filt + "' does not exist.")
         exit()
