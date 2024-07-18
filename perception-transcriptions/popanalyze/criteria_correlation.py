@@ -115,6 +115,12 @@ def filter_criteria(i, num_human, filt):
         else:
             raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
     elif filt[:7] == "studies":
+        target = filt[8:]
+        first_year, last_year = target.split("-")
+        if int(first_year) <= int(get_criteria(i, num_human, "educationLevel")) < int(last_year):
+            return False
+        else:
+            return True
         raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
     elif filt[:3] == "age":
         raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
@@ -160,7 +166,7 @@ if __name__ == "__main__":
 
 
     metrics = ["semdist"]
-    filters = ["nbrlang-1", "nbrlang-2", "nbrlang-3", "nbrlang-4"]
+    filters = ["age-0-30", "age-31-50", "age-51-99"]
     for metric in metrics:
         metric_data = get_metric_choice(metric)
         for filt in filters:
