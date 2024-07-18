@@ -92,7 +92,7 @@ def get_metric_choice(metric):
     return metric_data
 
 
-def compute_correlation(human_data, metric_data):
+def compute_correlation(human_data, metric_data, f): # f = filter
     # compute correlation between data and metric_data
     # data is a list of 20 minisets, each miniset contains 8 humans, each human has 50 choices
     # metric_data is a list of 20 minisets, each miniset contains 50 choices
@@ -104,27 +104,22 @@ def compute_correlation(human_data, metric_data):
             for j in range(len(human_data[i][num_human])):
                 # should add a filter here
                 human_choice = human_data[i][num_human][j]
-                try:
-                    metric_choice = metric_data[i][j]
-                except:
-                    print("i:", i)
-                    print("j:", j)
-                    print("len(metric_data):", len(metric_data))
-                    print("len(human_data):", len(human_data))
-                    input()
-                    print("len(metric_data[i]):", len(metric_data[i]))
-                    exit()
+                metric_choice = metric_data[i][j]
                 if human_choice == metric_choice:
                     agree += 1
                 else:
                     disagree += 1
-    return agree / (agree + disagree)
+    return agree / (agree + disagree), (agree+disagree)
 
 
 
 if __name__ == "__main__":
     human_data = get_human_choice()
-    metric_data = get_metric_choice("semdist")
-
-    agreement = compute_correlation(human_data, metric_data)
+    
+    metrics = ["wer", "cer", "semdist", "phoner"]
+    filters = ["gender", "lang", "nbrlang", "studies", "age"]
+    for metric in metrics:
+        metric_data = get_metric_choice("semdist")
+        for f in filters:
+            agreement, total = compute_correlation(human_data, metric_data, f)
     print("agreement:", agreement)
