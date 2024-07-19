@@ -92,18 +92,46 @@ def get_metric_choice(metric):
     return metric_data
 
 
-def filter_criteria(i, num_human, filt):
+def respect_criteria(i, num_human, filt):
+    # return true if the human respect the critera
+    # else false
+    # i.e. True if filt == gender-male and human is male
     if filt == "nofilter":
         return False
     elif filt[:6] == "gender":
-        # not implement error
+        genders = dict()
+        with open("annotation.txt", "r", encoding="utf8") as file:
+            for line in file:
+                gender = line.split(" : ")[1][0]
+                try:
+                    genders[i][num_human] = gender
+                except KeyError:
+                    genders[i] = dict()
+                    genders[i][num_human] = gender
+        target = filt[7:]
+        if target == "male":
+            if genders[i][num_human] == "M":
+                return True
+            elif genders[i][num_human] == "F":
+                return False
+            else:
+                raise NotImplementedError("gender unrecognized: " + genders[i][num_human])
+        elif target == "female":
+            if genders[i][num_human] == "F":
+                return True
+            elif genders[i][num_human] == "M":
+                return False
+            else:
+                raise NotImplementedError("gender unrecognized: " + genders[i][num_human])
         raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
     elif filt[:4] == "lang":
         target = filt[5:]
         if target == "others":
-            return get_criteria(i, num_human, "language") != "Français"
+            # return true if the language is NOT french
+            return "fran" not in get_criteria(i, num_human, "language").lower()
         elif target == "fr":
-            return get_criteria(i, num_human, "language") == "Français"
+            # return true if the language is french (should be ignored)
+            return "fran" in get_criteria(i, num_human, "language").lower()
         else:
             raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
     elif filt[:7] == "nbrlang":
@@ -118,16 +146,16 @@ def filter_criteria(i, num_human, filt):
         target = filt[8:]
         first_year, last_year = target.split("-")
         if int(first_year) <= int(get_criteria(i, num_human, "educationLevel")) < int(last_year):
-            return False
-        else:
             return True
+        else:
+            return False
     elif filt[:3] == "age":
         target = filt[4:]
         first_year, last_year = target.split("-")
         if int(first_year) <= int(get_criteria(i, num_human, "age")) < int(last_year):
-            return False
-        else:
             return True
+        else:
+            return False
     else:
         raise NotImplementedError("ERROR. Filter '" + filt + "' does not exist.")
         exit()
@@ -145,7 +173,7 @@ def compute_correlation(human_data, metric_data, filt):
     for i in range(len(human_data)):
         for num_human in range(len(human_data[i])):
             # should add a filter here
-            if filter_criteria(i, num_human+1, filt):
+            if not respect_criteria(i, num_human+1, filt): # if it does respect the criteria
                 continue
             for j in range(len(human_data[i][num_human])):
                 human_choice = human_data[i][num_human][j]
@@ -170,7 +198,7 @@ if __name__ == "__main__":
 
 
     metrics = ["semdist"]
-    filters = ["age-0-30", "age-31-50", "age-51-99"]
+    filters = ["gender-male", "gender-female"]
     for metric in metrics:
         metric_data = get_metric_choice(metric)
         for filt in filters:
