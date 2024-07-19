@@ -99,31 +99,36 @@ def respect_criteria(i, num_human, filt):
     if filt == "nofilter":
         return False
     elif filt[:6] == "gender":
-        genders = dict()
+        name2genders = dict()
         with open("annotation.txt", "r", encoding="utf8") as file:
+            i_t = 0
+            num_human_t = 0
             for line in file:
-                gender = line.split(" : ")[1][0]
-                try:
-                    genders[i][num_human] = gender
-                except KeyError:
-                    genders[i] = dict()
-                    genders[i][num_human] = gender
+                name, gender = line.split(" : ")
+                name2genders[name] = gender[0]
         target = filt[7:]
+        name = get_criteria(i, num_human, "name")
+        gender = name2genders[name]
         if target == "male":
-            if genders[i][num_human] == "M":
+            if gender == "M":
                 return True
-            elif genders[i][num_human] == "F":
+            elif gender == "F":
+                return False
+            elif gender == "X":
                 return False
             else:
-                raise NotImplementedError("gender unrecognized: " + genders[i][num_human])
+                raise NotImplementedError("gender unrecognized: " + gender)
         elif target == "female":
-            if genders[i][num_human] == "F":
+            if gender == "F":
                 return True
-            elif genders[i][num_human] == "M":
+            elif gender == "M":
+                return False
+            elif gender == "X":
                 return False
             else:
-                raise NotImplementedError("gender unrecognized: " + genders[i][num_human])
-        raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
+                raise NotImplementedError("gender unrecognized: " + gender)
+        else:
+            raise NotImplementedError("Filter '" + filt + "' not implemented yet.")
     elif filt[:4] == "lang":
         target = filt[5:]
         if target == "others":
@@ -174,6 +179,7 @@ def compute_correlation(human_data, metric_data, filt):
         for num_human in range(len(human_data[i])):
             # should add a filter here
             if not respect_criteria(i, num_human+1, filt): # if it does respect the criteria
+                norespect += 1
                 continue
             for j in range(len(human_data[i][num_human])):
                 human_choice = human_data[i][num_human][j]
