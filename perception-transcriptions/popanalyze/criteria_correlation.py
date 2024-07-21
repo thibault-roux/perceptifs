@@ -179,7 +179,6 @@ def compute_correlation(human_data, metric_data, filt):
         for num_human in range(len(human_data[i])):
             # should add a filter here
             if not respect_criteria(i, num_human+1, filt): # if it does respect the criteria
-                norespect += 1
                 continue
             for j in range(len(human_data[i][num_human])):
                 human_choice = human_data[i][num_human][j]
@@ -202,11 +201,11 @@ if __name__ == "__main__":
                 "studies-0-2", "studies-3-4", "studies-5-7", "studies-8-15",
                 "age-0-30", "age-31-50", "age-51-99"]
 
-
-    metrics = ["semdist"]
-    filters = ["gender-male", "gender-female"]
+    txt_ratio = ""
+    txt_total = ""
     for metric in metrics:
         metric_data = get_metric_choice(metric)
         for filt in filters:
             agreement, total = compute_correlation(human_data, metric_data, filt)
             print(metric, filt, agreement)
+            txt_ratio += f"{metric} {filt} {agreement}\n"
