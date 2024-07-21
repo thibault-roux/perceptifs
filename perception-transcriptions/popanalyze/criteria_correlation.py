@@ -203,9 +203,24 @@ if __name__ == "__main__":
 
     txt_ratio = ""
     txt_total = ""
+    for filt in filters:
+        txt_ratio += filt + ","
+        txt_total += filt + ","
+    txt_ratio = txt_ratio[:-1] + "\n"
+    txt_total = txt_total[:-1] + "\n"
     for metric in metrics:
         metric_data = get_metric_choice(metric)
+        txt_ratio += metric + ","
+        txt_total += metric + ","
         for filt in filters:
             agreement, total = compute_correlation(human_data, metric_data, filt)
-            print(metric, filt, agreement)
-            txt_ratio += f"{metric} {filt} {agreement}\n"
+            txt_ratio += str(agreement) + ","
+            txt_total += str(total) + ","
+        txt_ratio = txt_ratio[:-1] + "\n"
+        txt_total = txt_total[:-1] + "\n"
+
+    with open("results/ratio.csv", "w") as f:
+        f.write(txt_ratio)
+    with open("results/total.csv", "w") as f:
+        f.write(txt_total)
+    print("done")
