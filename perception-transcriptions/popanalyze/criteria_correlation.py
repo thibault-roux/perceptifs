@@ -206,26 +206,39 @@ if __name__ == "__main__":
                 "studies-0-2", "studies-3-4", "studies-5-7", "studies-8-15",
                 "age-0-30", "age-31-50", "age-51-99"]
 
-    txt_ratio = ","
-    txt_total = ","
+    txt_ratio = "," # agreement ratio
+    txt_total = "," # number of annotations (indirectly the number of humans corresponding to criteria)
+    txt_std = "," # standard deviation of each human with respect to a metric
+
     for filt in filters:
         txt_ratio += filt + ","
         txt_total += filt + ","
+        txt_std += filt + ","
     txt_ratio = txt_ratio[:-1] + "\n"
     txt_total = txt_total[:-1] + "\n"
+
     for metric in metrics:
         metric_data = get_metric_choice(metric)
         txt_ratio += metric + ","
         txt_total += metric + ","
+        txt_std += metric + ","
         for filt in filters:
             agreement, total, ind_scores = compute_correlation(human_data, metric_data, filt)
             txt_ratio += str(agreement) + ","
             txt_total += str(total) + ","
+            # compute standard deviation of ind_scores
+            mean = sum(ind_scores) / len(ind_scores)
+            variance = sum([(x - mean) ** 2 for x in ind_scores]) / len(ind_scores)
+            std = variance ** 0.5
+            txt_std += str(round(std, 5)) + ","
         txt_ratio = txt_ratio[:-1] + "\n"
         txt_total = txt_total[:-1] + "\n"
+        txt_std = txt_std[:-1] + "\n"
 
     with open("results/ratio.csv", "w") as f:
         f.write(txt_ratio)
     with open("results/total.csv", "w") as f:
         f.write(txt_total)
+    with open("results/std.csv", "w") as f:
+        f.write(txt_std)
     print("done")
