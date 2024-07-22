@@ -175,19 +175,23 @@ def compute_correlation(human_data, metric_data, filt):
 
     agree = 0
     disagree = 0
-    for i in range(len(human_data)):
+    ind_scores = []
+    for i in range(len(human_data)): # for each data set (i from 0 to 19)
         for num_human in range(len(human_data[i])):
             # should add a filter here
             if not respect_criteria(i, num_human+1, filt): # if it does respect the criteria
                 continue
+            scores = 0
             for j in range(len(human_data[i][num_human])):
                 human_choice = human_data[i][num_human][j]
                 metric_choice = metric_data[i][j]
                 if human_choice == metric_choice:
                     agree += 1
+                    scores += 1
                 else:
                     disagree += 1
-    return round(agree / (agree + disagree), 5), (agree+disagree)
+            ind_scores.append(scores)
+    return round(agree / (agree + disagree), 5), (agree+disagree), ind_scores
 
 
 
@@ -214,7 +218,7 @@ if __name__ == "__main__":
         txt_ratio += metric + ","
         txt_total += metric + ","
         for filt in filters:
-            agreement, total = compute_correlation(human_data, metric_data, filt)
+            agreement, total, ind_scores = compute_correlation(human_data, metric_data, filt)
             txt_ratio += str(agreement) + ","
             txt_total += str(total) + ","
         txt_ratio = txt_ratio[:-1] + "\n"
