@@ -97,7 +97,7 @@ def respect_criteria(i, num_human, filt):
     # else false
     # i.e. True if filt == gender-male and human is male
     if filt == "nofilter":
-        return False
+        return True # always respecting
     elif filt[:6] == "gender":
         name2genders = dict()
         with open("annotation.txt", "r", encoding="utf8") as file:
@@ -187,7 +187,7 @@ def compute_correlation(human_data, metric_data, filt):
                     agree += 1
                 else:
                     disagree += 1
-    return agree / (agree + disagree), (agree+disagree)
+    return round(agree / (agree + disagree), 5), (agree+disagree)
 
 
 
@@ -195,14 +195,15 @@ if __name__ == "__main__":
     human_data = get_human_choice()
     
     metrics = ["wer", "cer", "semdist", "phoner"]
-    filters = ["gender-male", "gender-female",
+    filters = ["nofilter",
+                "gender-male", "gender-female",
                 "lang-fr", "lang-others",
                 "nbrlang-1", "nbrlang-2", "nbrlang-3", "nbrlang-4",
                 "studies-0-2", "studies-3-4", "studies-5-7", "studies-8-15",
                 "age-0-30", "age-31-50", "age-51-99"]
 
-    txt_ratio = ""
-    txt_total = ""
+    txt_ratio = ","
+    txt_total = ","
     for filt in filters:
         txt_ratio += filt + ","
         txt_total += filt + ","
