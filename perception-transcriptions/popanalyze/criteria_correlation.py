@@ -209,6 +209,7 @@ if __name__ == "__main__":
     txt_ratio = "," # agreement ratio
     txt_total = "," # number of annotations (indirectly the number of humans corresponding to criteria)
     txt_std = "," # standard deviation of each human with respect to a metric
+    txt_mean = "," # mean of each human with respect to a metric
 
     for filt in filters:
         txt_ratio += filt + ","
@@ -216,6 +217,7 @@ if __name__ == "__main__":
         txt_std += filt + ","
     txt_ratio = txt_ratio[:-1] + "\n"
     txt_total = txt_total[:-1] + "\n"
+    txt_mean = txt_mean[:-1] + "\n"
 
     for metric in metrics:
         metric_data = get_metric_choice(metric)
@@ -231,9 +233,11 @@ if __name__ == "__main__":
             variance = sum([(x - mean) ** 2 for x in ind_scores]) / len(ind_scores)
             std = variance ** 0.5
             txt_std += str(round(std, 5)) + ","
+            txt_mean += str(round(mean, 5)) + ","
         txt_ratio = txt_ratio[:-1] + "\n"
         txt_total = txt_total[:-1] + "\n"
         txt_std = txt_std[:-1] + "\n"
+        txt_mean = txt_mean[:-1] + "\n"
 
     with open("results/ratio.csv", "w") as f:
         f.write(txt_ratio)
@@ -241,4 +245,6 @@ if __name__ == "__main__":
         f.write(txt_total)
     with open("results/std.csv", "w") as f:
         f.write(txt_std)
+    with open("results/mean.csv", "w") as f:
+        f.write(txt_mean)
     print("done")
