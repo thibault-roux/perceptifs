@@ -34,6 +34,9 @@ import json
 
 import matplotlib.pyplot as plt
 
+import scipy.stats as stats
+import numpy as np
+
 
 
 def get_answers(i, j):
@@ -195,23 +198,52 @@ def compute_correlation(human_data, metric_data, filt):
 
 
 
+
+
+def ttest(ind_scores1, ind_scores2):
+    # Données
+    n_A = len(ind_scores1)
+    n_B = len(ind_scores2)
+    mean_A = sum(ind_scores1) / n_A
+    mean_B = sum(ind_scores2) / n_B
+
+    # Estimation of the pooled variance of the two samples
+    item1 = sum([(x - mean_A)**2 for x in ind_scores1])
+    item2 = sum([(x - mean_B)**2 for x in ind_scores2])
+    S_square = item1 + item2 / (n_A + n_B - 2)
+
+    # Test statistic
+    t = (mean_A - mean_B) / (S_square * (1/n_A + 1/n_B))**0.5
+
+    # Degrees of freedom
+    df = n_A + n_B - 2
+
+    # p-value
+    p = 1 - stats.t.cdf(t, df)
+
+    return t, p
+
+
 if __name__ == "__main__":
     human_data = get_human_choice()
     
     metrics = ["wer", "cer", "semdist", "phoner"]
-    filters = ["nofilter",
-                "gender-male", "gender-female",
-                "lang-fr", "lang-others",
-                "nbrlang-1", "nbrlang-2", "nbrlang-3", "nbrlang-4",
-                "studies-0-2", "studies-3-4", "studies-5-7", "studies-8-15",
-                "age-0-30", "age-31-50", "age-51-99"]
+    filters = [["gender-male", "gender-female"],
+                ["lang-fr", "lang-others"],
+                ["nbrlang-1", "nbrlang-4"], # "nbrlang-2", "nbrlang-3", 
+                ["studies-0-2", "studies-5-7"], # "studies-3-4", "studies-8-15",
+                ["age-0-30", "age-31-50"], ["age-31-50", "age-51-99"]]
 
-    for metric in metrics:
-        metric_data = get_metric_choice(metric)
+    for filt in filters:
+        filt1, filt2 = filt
 
-        for filt in filters:
-            agreement, total, ind_scores = compute_correlation(human_data, metric_data, filt)
-            # compute standard deviation of ind_scores
-            mean = sum(ind_scores) / len(ind_scores)
-            variance = sum([(x - mean) ** 2 for x in ind_scores]) / len(ind_scores)
-            std = variance ** 0.5
+        for metric in metrics:
+            metric_data = get_metric_choice(metric)
+
+            agreement1, total1, ind_scores1 = compute_correlation(human_data, metric_data, filt1)
+            agreement2, total2, ind_scores2 = compute_correlation(human_data, metric_data, filt2)
+            
+            # print(metric, filt1, filt2)
+            t, p = ttest(ind_scores1, ind_scores2)
+            print("pvalue:", p)
+            print()
